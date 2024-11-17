@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { COLORS, FONTS, INPUTSIZE, SHADOWS } from '../constants/constants'
+import { COLORS, FONTS, INPUTSIZE, SHADOWS } from '../constants/styles'
 
 /* Funções que utiliza o props enviado para mapear e utilizar 
 a estilização desejada através de um objeto dentro dela */

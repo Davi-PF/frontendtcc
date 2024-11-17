@@ -1,5 +1,4 @@
-export const TOAST_CONFIG = {
-    position: "top-center",
-    autoClose: 3000,
-  };
-  
+export const ToastConfig = {
+  position: "top-center",
+  autoClose: 3000,
+};

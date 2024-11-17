@@ -1,47 +1,46 @@
-import { useState, useEffect } from "react";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState, useEffect } from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Routes, Route, useLocation } from "react-router-dom";
 
-// Router
-import { Routes, Route, useLocation } from "react-router-dom"
+// Contexts
+import { SensitiveDataProvider } from "./context/SensitiveDataContext";
 
 // Components
-import Header from './components/Header';
+import Header from "./components/Header";
 
-// Pages
-import Home from './pages/Home'
-import DependentData from "./pages/DependentData";
-import SmsHandler from "./pages/SmsHandler";
-import EmergencyPhone from "./pages/EmergencyPhone";
-import DependentFullData from "./pages/DependentFullData";
+// Styles
+import "./styles/app.css"; // Estilos globais (opcional)
 
-function App() {
-  let location = useLocation();
-  const [homeStyle, setHomeStyle] = useState(true)
+import { routes } from "./routes/routes";
 
+const App = () => {
+  const location = useLocation();
+  const [isHomePage, setIsHomePage] = useState(false);
+
+  // Atualiza o estilo do header com base na rota
   useEffect(() => {
-    if (location.pathname === "/") setHomeStyle(true)
-    else setHomeStyle(false)
-  }, [location])
-
-  const appStyle = {
-    textAlign: 'center',
-    height: "600px"
-  }
+    setIsHomePage(location.pathname === "/");
+  }, [location]);
 
   return (
-    <div style={appStyle}>
-        <Header homeStyle={homeStyle} />
-          <Routes>
-            <Route path="/home" element={<Home />} />
-            <Route path="/emergencyPhone" element={<EmergencyPhone />} />
-            <Route path="/dependentFullData" element={<DependentFullData />} />
-            <Route path="/dependentData" element={<DependentData />} />
-            <Route path="/smsHandler" element={<SmsHandler />} />
-          </Routes>
-          <ToastContainer />
-    </div>
+    <SensitiveDataProvider>
+      <div className="app-container">
+        {/* Header */}
+        <Header homeStyle={isHomePage} />
+
+        {/* Rotas */}
+        <Routes>
+          {routes.map(({ path, element }, index) => (
+            <Route key={index} path={path} element={element} />
+          ))}
+        </Routes>
+
+        {/* Toast Notifications */}
+        <ToastContainer />
+      </div>
+    </SensitiveDataProvider>
   );
-}
+};
 
 export default App;

@@ -1,30 +1,39 @@
 import { useState } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { API_URL } from "../constants/apiEndpoints";
+import { useSensitiveData } from "../context/SensitiveDataContext";
+import { decryptData } from "../utils/cryptoUtils";
 
 export const useFetchData = () => {
+  
+  const { encryptedCpfDep, encryptedEmergPhone } =
+    useSensitiveData();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const fetchData = async (cpfDep, emergPhone) => {
+  const fetchData = async () => {
+    if (!encryptedCpfDep || !encryptedEmergPhone) {
+      console.warn("Dados criptografados ausentes, abortando fetchData.");
+      return; // Apenas interrompe a execução sem lançar erro
+    }
+  
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${API_URL}/api/dependents/verifyDependentsCPFandEmergPhone/params?cpfDep=${cpfDep}&emergPhone=${emergPhone}`
-      );
-
-      if (response.data) {
-        localStorage.setItem("dependentData", JSON.stringify(response.data));
-      } else {
-        throw new Error("Dados do dependente não encontrados.");
+  
+      // Descriptografa os valores antes de usá-los na requisição
+      const cpfDep = await decryptData(encryptedCpfDep);
+      const emergPhone = await decryptData(encryptedEmergPhone);
+  
+      if (!cpfDep || !emergPhone) {
+        throw new Error("Erro ao descriptografar os dados do dependente.");
       }
 
       navigate("/emergencyPhone");
     } catch (error) {
       console.error("Erro ao buscar dados:", error);
-      toast.error("Erro ao buscar dados, tente novamente...");
+      toast.error("Erro ao buscar dados, tente novamente...", {
+        toastId: "fetch-error",
+      });
     } finally {
       setLoading(false);
     }

@@ -1,0 +1,1 @@
+export const Secret_key = process.env.SECRET_KEY;

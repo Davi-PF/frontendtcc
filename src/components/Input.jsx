@@ -1,4 +1,4 @@
-import { COLORS, FONTS, INPUTSIZE, SHADOWS } from "../constants/constants";
+import { COLORS, FONTS, INPUTSIZE, SHADOWS } from "../constants/styles";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 

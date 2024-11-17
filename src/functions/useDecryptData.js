@@ -1,37 +1,65 @@
 import { useEffect } from "react";
-import { API_URL } from "../constants/apiEndpoints";
-import axios from "axios";
+import { decryptData, encryptData } from "../utils/cryptoUtils";
+import { useSensitiveData } from "../context/SensitiveDataContext";
 import { toast } from "react-toastify";
 
-export const decryptData = async (data) => {
-    try {
-        const formData = new FormData();
-        formData.append("request", data);
-        const response = await axios.post(
-            `${API_URL}/api/url/decrypt`,
-            formData, {headers: { "Content-Type": "multipart/form-data" }}
-          );
-          return response.data;
-        } catch (error) {
-          console.error("Erro ao decriptar dados:", error.message);
-          toast.error("Erro ao decriptar dados, tente novamente.", {
-            position: toast.POSITION.TOP_CENTER,
-            autoClose: 3000,});
-          return null;
-    }
-}
+export const useDecryptData = () => {
+  const { setEncryptedCpfDep, setEncryptedEmergPhone } = useSensitiveData(); // Obtém os métodos do contexto
 
-export const useDecryptData = (setCpfDep, setEmergPhone) => {
   useEffect(() => {
-    const encryptedData = window.location.search.replace("?", "");
-    decryptData(encryptedData).then((decryptedData) => {
-      if (decryptedData) {
-        const params = new URLSearchParams(decryptedData);
-        setCpfDep(params.get("cpfDep") || "");
-        setEmergPhone(params.get("emergPhone") || "");
-      } else {
-        toast.error("URL inválida, tente novamente.");
+    const encryptedData = window.location.search.replace("?", ""); // Obtém a string criptografada da URL
+
+    const decryptAndEncryptData = async () => {
+      if (!encryptedData) {
+        toast.error("Nenhum dado encontrado na URL. Por favor, tente novamente.", {
+          toastId: "missing-data",
+        });
+        return;
       }
-    });
-  }, [setCpfDep, setEmergPhone]);
+
+      try {
+        // Decripta a string recebida da URL
+        const decryptedString = await decryptData(encryptedData);
+
+        if (!decryptedString) {
+          toast.error("Erro ao descriptografar os dados, tente novamente.", {
+            toastId: "decrypt-error",
+          });
+          return;
+        }
+
+        // Separa os valores descriptografados
+        const params = new URLSearchParams(decryptedString);
+        const cpfDep = params.get("cpfDep");
+        const emergPhone = params.get("emergPhone");
+
+        if (cpfDep && emergPhone) {
+          // Recriptografa os valores separadamente
+          const encryptedCpf = await encryptData(cpfDep);
+          const encryptedPhone = await encryptData(emergPhone);
+
+          if (encryptedCpf && encryptedPhone) {
+            // Atualiza os valores criptografados no contexto
+            setEncryptedCpfDep(encryptedCpf);
+            setEncryptedEmergPhone(encryptedPhone);
+          } else {
+            toast.error("Erro ao criptografar os dados, tente novamente.", {
+              toastId: "encrypt-error",
+            });
+          }
+        } else {
+          toast.error("Dados inválidos, tente novamente.", {
+            toastId: "invalid-data",
+          });
+        }
+      } catch (error) {
+        console.error("Erro no processo de descriptografia/recriptografia:", error);
+        toast.error("Erro ao processar os dados, tente novamente.", {
+          toastId: "process-error",
+        });
+      }
+    };
+
+    decryptAndEncryptData();
+  }, [setEncryptedCpfDep, setEncryptedEmergPhone]);
 };
