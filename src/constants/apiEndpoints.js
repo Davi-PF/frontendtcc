@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8080"
+const API_URL = "http://localhost:5000"
 export const API_ENCRYPT = API_URL + "/api/url/encrypt"
 export const API_DECRYPT = API_URL + "/api/url/decrypt"
 export const API_VERIFY_DEPENDENTS_CPF_EMERGPHONE = API_URL + "/api/dependent/commonuser/verifyDependentsCPFandEmergPhone/params"

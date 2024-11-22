@@ -6,8 +6,8 @@ import {
   API_SMSHANDLER_SENDER,
   API_SMSHANDLER_VERIFY_CODE,
 } from "../../../constants/apiEndpoints";
-import getFunctions from "../../../functions/getFunctions";
-import { useSensitiveData } from "../../../context/SensitiveDataContext";
+import getFunctions from "../../../functions/generalFunctions/getFunctions";
+import { useSensitiveData } from "../../../contexts/SensitiveDataContext/SensitiveDataContext";
 
 export const useSmsHandlerLogic = (navigate) => {
   const { encryptedCpfDep, encryptedEmergPhone } = useSensitiveData();

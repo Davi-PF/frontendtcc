@@ -1,4 +1,4 @@
-import { COLORS, FONTS, INPUTSIZE, SHADOWS } from "../constants/styles";
+import { COLORS, FONTS, INPUTSIZE, SHADOWS } from "../../constants/styles";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -151,8 +151,7 @@ function Input({
                 if (e.target.value.length >= 7 && e.target.value.length < 9) {
                   smsVerifyFunction(e.target.value)
                 } else {
-                  toast.error("Você deve digitar um código de 7 ou 8 dígitos.", {
-                    position: toast.POSITION.TOP_CENTER,
+                  toast.error("Você deve digitar um código de 6 dígitos.", {
                     autoClose: 3000,
                   });
                 }

@@ -4,10 +4,10 @@ import "react-toastify/dist/ReactToastify.css";
 import { Routes, Route, useLocation } from "react-router-dom";
 
 // Contexts
-import { SensitiveDataProvider } from "./context/SensitiveDataContext";
+import { SensitiveDataProvider } from "./contexts/SensitiveDataContext/SensitiveDataContext";
 
 // Components
-import Header from "./components/Header";
+import Header from "./components/Header/Header";
 
 // Styles
 import "./styles/app.css"; // Estilos globais (opcional)

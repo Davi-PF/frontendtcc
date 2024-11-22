@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import PhoneField from "../../components/PhoneField";
-import LoadingScreen from "../../components/LoadingScreen"; // Componente de carregamento
+import PhoneField from "../../components/PhoneField/PhoneField";
+import LoadingScreen from "../../components/LoadingScreen/LoadingScreen"; // Componente de carregamento
 import { useEmergencyPhoneLogic } from "./hooks/useEmergencyPhoneLogic"; // Custom hook
 import styles from "./styles/emergencyPhoneStyles";
 

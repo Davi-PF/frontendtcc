@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Input from "../../components/Input";
-import Button from "../../components/Button";
+import Input from "../../components/Input/Input";
+import Button from "../../components/Button/Button";
 import { enviarDadosHelper } from "./helpers/enviarDadosHelper";
 import { useDependentFullDataLogic } from "./hooks/useDependentFullDataLogic";
 import styles from "./styles/dependentFullDataStyles";

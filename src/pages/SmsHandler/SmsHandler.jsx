@@ -1,7 +1,7 @@
   import { useNavigate } from "react-router-dom";
-  import GiphyEmbed from "../../components/GiphyEmbed";
+  import GiphyEmbed from "../../components/GiphyEmbed/GiphyEmbed";
   import CodeInput from "../../components/CodeInput/CodeInput";
-  import Button from "../../components/Button";
+  import Button from "../../components/Button/Button";
   import { toast } from "react-toastify";
   import { useSmsHandlerLogic } from "./hooks/useSmsHandlerLogic"; // Custom hook
   import styles from "./styles/smsHandlerStyles"; // Estilos organizados

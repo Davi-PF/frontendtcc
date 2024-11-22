@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { useSensitiveData } from "../../../context/SensitiveDataContext";
+import { useSensitiveData } from "../../../contexts/SensitiveDataContext/SensitiveDataContext";
 import { decryptData } from "../../../utils/cryptoUtils";
 import axios from "axios";
 import { API_DEPENDENT_FOUND_BY_ID } from "../../../constants/apiEndpoints";

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { useSensitiveData } from "../../../context/SensitiveDataContext";
+import { useSensitiveData } from "../../../contexts/SensitiveDataContext/SensitiveDataContext";
 import { decryptData } from "../../../utils/cryptoUtils";
 import axios from "axios";
 import { API_DEPENDENT_FOUND_BY_ID } from "../../../constants/apiEndpoints";
@@ -28,10 +28,14 @@ export const useDependentDataLogic = () => {
         const decryptedPhone = await decryptData(encryptedEmergPhone);
 
         if (!decryptedCpf) {
+          setEmergPhone(decryptedPhone ? String(decryptedPhone) : "");
           throw new Error("Erro ao descriptografar CPF.");
         }
 
-        setEmergPhone(decryptedPhone ? String(decryptedPhone) : "");
+        setEmergPhone(decryptedPhone !== undefined && decryptedPhone !== null ? String(decryptedPhone) : "");
+
+        console.log("EmergPhone State:", emergPhone);
+
         await fetchDependentData(decryptedCpf);
       } catch (error) {
         console.error("Erro ao carregar dados:", error);

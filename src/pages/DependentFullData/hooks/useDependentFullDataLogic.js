@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { useSensitiveData } from "../../../context/SensitiveDataContext";
+import { useSensitiveData } from "../../../contexts/SensitiveDataContext/SensitiveDataContext";
 import { decryptData } from "../../../utils/cryptoUtils";
 
 export const useDependentFullDataLogic = () => {

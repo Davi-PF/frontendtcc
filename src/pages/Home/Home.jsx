@@ -1,10 +1,9 @@
 import { useEffect } from "react";
 import { useHomeLogic } from "./hooks/useHomeLogic";
-import LoadingScreen from "../../components/LoadingScreen";
+import LoadingScreen from "../../components/LoadingScreen/LoadingScreen";
 
 export default function Home() {
-  const { loading, encryptedCpfDep, encryptedEmergPhone, fetchData } =
-    useHomeLogic();
+  const { loading, encryptedCpfDep, encryptedEmergPhone, fetchData } = useHomeLogic();
 
   // Chama fetchData apenas se os dados criptografados estiverem disponíveis
   useEffect(() => {
@@ -15,7 +14,11 @@ export default function Home() {
 
   return (
     <div>
-      {loading ? <LoadingScreen /> : <p>Dados carregados com sucesso!</p>}
+      {loading ? (
+        <LoadingScreen />
+      ) : (
+        <p>Dados carregados com sucesso! Redirecionando...</p>
+      )}
     </div>
   );
 }

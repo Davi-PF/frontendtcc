@@ -1,16 +1,31 @@
-import { useCallback } from "react";
-import { useFetchData } from "../../../functions/useFetchData";
-import { useDecryptData } from "../../../functions/useDecryptData";
-import { useSensitiveData } from "../../../context/SensitiveDataContext";
+import { useCallback, useState, useEffect } from "react";
+import { useFetchData } from "../../../functions/dataRelated/useFetchData/useFetchData";
+import { getItem } from "../../../utils/localStorageUtils";
+import { useNavigate } from "react-router-dom";
+import { useDecryptData } from "../../../functions/dataRelated/useDecryptData/useDecryptData";
 
 export function useHomeLogic() {
-  const { encryptedCpfDep, encryptedEmergPhone } = useSensitiveData();
+  const navigate = useNavigate();
   const { loading, fetchData: originalFetchData } = useFetchData();
 
-  // Desencriptação (caso precise apenas executar efeitos colaterais)
-  useDecryptData(encryptedCpfDep, encryptedEmergPhone);
+  const [encryptedCpfDep, setEncryptedCpfDep] = useState(() => getItem("encryptedCpfDep", ""));
+  const [encryptedEmergPhone, setEncryptedEmergPhone] = useState(() => getItem("encryptedEmergPhone", ""));
 
-  // Memoriza a função fetchData para evitar recriações no useEffect
+  useEffect(() => {
+    const authToken = getItem("authToken");
+    if (!authToken) {
+      console.warn("Token JWT ausente. Redirecionando para login.");
+      navigate("/");
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    setEncryptedCpfDep(getItem("encryptedCpfDep", ""));
+    setEncryptedEmergPhone(getItem("encryptedEmergPhone", ""));
+  }, []);
+
+  useDecryptData();
+
   const fetchData = useCallback(() => {
     originalFetchData();
   }, [originalFetchData]);

@@ -15,7 +15,7 @@ export const COLORS = {
 
 export const FONTS = {
     FAMILY: 'Poppins',
-    TITLE_SIZE: '9px',
+    TITLE_SIZE: '14px',
     CAPTION_SIZE: '7px',
     TEXT_SIZE: '6px',
     INPUT_SIZE: '12px',

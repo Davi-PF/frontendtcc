@@ -1,6 +1,6 @@
 import { useDependentDataLogic } from "./hooks/useDependentDataLogic"; // Custom hook
-import Input from "../../components/Input";
-import PhoneField from "../../components/PhoneField";
+import Input from "../../components/Input/Input";
+import PhoneField from "../../components/PhoneField/PhoneField";
 import styles from "./styles/dependentDataStyles"; // Estilos organizados
 
 const DependentData = () => {

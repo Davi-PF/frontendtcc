@@ -1,5 +1,5 @@
 import { React } from 'react'
-import { COLORS } from '../constants/styles'
+import { COLORS } from '../../constants/styles'
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft, faBagShopping } from '@fortawesome/free-solid-svg-icons';
