@@ -14,7 +14,7 @@ const styles = {
     margin: "0vh 2vw 2vh 2vw",
     fontWeight: "normal",
     textAlign: "center",
-    fontSize: "1.2rem", // Unidade relativa para ser responsivo
+    fontSize: "1.2rem",
   },
   subtitle: {
     margin: "2vh 2vw",
@@ -27,23 +27,26 @@ const styles = {
     flexDirection: "column",
     justifyContent: "space-evenly",
     alignItems: "center",
-    gap: "15px", // Espaçamento consistente entre elementos
-    width: "100%", // Para inputs ocuparem o espaço disponível
-    maxWidth: "400px", // Máximo para manter um layout agradável em telas maiores
+    gap: "15px",
+    width: "100%",
+    maxWidth: "400px",
     marginTop: "10px",
   },
   button: {
-    width: "100%", // Botão ocupa todo o espaço do container
-    maxWidth: "300px", // Limita o tamanho em telas maiores
+    width: "100%",
+    maxWidth: "300px",
     fontSize: "1rem",
   },
   paragraph: {
-    fontSize: "0.9rem", // Um pouco menor para dispositivos móveis
+    fontSize: "0.9rem",
     textAlign: "center",
     marginTop: "15px",
     lineHeight: "1.4em",
   },
   span: {
+    background: "none",
+    fontSize: "0.9rem",
+    border: "none",
     color: COLORS.BLUE_MAIN,
     fontWeight: "bold",
     cursor: "pointer",
@@ -68,7 +71,7 @@ const styles = {
     transition: "border-color 0.3s ease",
   },
   giphyEmbed: {
-    marginBottom: "20px", // Adiciona espaço entre o GIF e os textos
+    marginBottom: "20px",
     width: "150px",
     height: "150px",
   },
@@ -84,10 +87,10 @@ const styles = {
     },
     divInputs: {
       gap: "10px",
-      maxWidth: "90%", // Inputs ocupam quase toda a largura da tela
+      maxWidth: "90%",
     },
     button: {
-      maxWidth: "250px", // Botão um pouco menor
+      maxWidth: "250px",
     },
     input: {
       width: "40px",

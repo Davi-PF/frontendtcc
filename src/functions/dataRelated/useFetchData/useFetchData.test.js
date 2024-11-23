@@ -1,7 +1,7 @@
 import { render, screen, waitFor, act } from "@testing-library/react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { useSensitiveData } from "../../../contexts/SensitiveDataContext/SensitiveDataContext";
+import { getItem } from "../../../utils/localStorageUtils";
 import { decryptData } from "../../../utils/cryptoUtils";
 import { useFetchData } from "./useFetchData";
 
@@ -11,12 +11,12 @@ jest.mock("react-toastify", () => ({
   },
 }));
 
-jest.mock("../../../contexts/SensitiveDataContext/SensitiveDataContext", () => ({
-  useSensitiveData: jest.fn(),
-}));
-
 jest.mock("react-router-dom", () => ({
   useNavigate: jest.fn(),
+}));
+
+jest.mock("../../../utils/localStorageUtils", () => ({
+  getItem: jest.fn(),
 }));
 
 jest.mock("../../../utils/cryptoUtils", () => ({
@@ -27,8 +27,8 @@ describe("useFetchData", () => {
   const navigate = jest.fn();
 
   beforeEach(() => {
-    jest.spyOn(console, "warn").mockImplementation(() => {}); // Mock de console.warn
-    jest.spyOn(console, "error").mockImplementation(() => {}); // Mock de console.error
+    jest.spyOn(console, "warn").mockImplementation(() => {});
+    jest.spyOn(console, "error").mockImplementation(() => {});
     jest.clearAllMocks();
     useNavigate.mockReturnValue(navigate);
   });
@@ -49,10 +49,34 @@ describe("useFetchData", () => {
     );
   };
 
+  it("should navigate to '/' if authToken is missing", async () => {
+    getItem.mockImplementation((key) => {
+      if (key === "authToken") return null;
+      return "someValue";
+    });
+
+    render(<TestComponent />);
+
+    await act(async () => {
+      screen.getByText("Fetch Data").click();
+    });
+
+    await waitFor(() => {
+      expect(console.error).toHaveBeenCalledWith(
+        "Token JWT ausente. Redirecionando para login."
+      );
+      expect(toast.error).toHaveBeenCalledWith(
+        "Sessão expirada. Faça login novamente.",
+        { toastId: "session-expired" }
+      );
+      expect(navigate).toHaveBeenCalledWith("/");
+    });
+  });
+
   it("should warn and return if encrypted data is missing", async () => {
-    useSensitiveData.mockReturnValue({
-      encryptedCpfDep: null,
-      encryptedEmergPhone: null,
+    getItem.mockImplementation((key) => {
+      if (key === "authToken") return "validAuthToken";
+      return null;
     });
 
     render(<TestComponent />);
@@ -70,9 +94,11 @@ describe("useFetchData", () => {
   });
 
   it("should decrypt data and navigate on success", async () => {
-    useSensitiveData.mockReturnValue({
-      encryptedCpfDep: "encryptedCpf",
-      encryptedEmergPhone: "encryptedPhone",
+    getItem.mockImplementation((key) => {
+      if (key === "authToken") return "validAuthToken";
+      if (key === "encryptedCpfDep") return "encryptedCpf";
+      if (key === "encryptedEmergPhone") return "encryptedPhone";
+      return null;
     });
 
     decryptData.mockResolvedValueOnce("12345678900").mockResolvedValueOnce("987654321");
@@ -91,12 +117,14 @@ describe("useFetchData", () => {
   });
 
   it("should show an error toast if decryption fails", async () => {
-    useSensitiveData.mockReturnValue({
-      encryptedCpfDep: "encryptedCpf",
-      encryptedEmergPhone: "encryptedPhone",
+    getItem.mockImplementation((key) => {
+      if (key === "authToken") return "validAuthToken";
+      if (key === "encryptedCpfDep") return "encryptedCpf";
+      if (key === "encryptedEmergPhone") return "encryptedPhone";
+      return null;
     });
 
-    decryptData.mockResolvedValueOnce(null); // Simula falha na descriptografia
+    decryptData.mockResolvedValueOnce(null);
 
     render(<TestComponent />);
 
@@ -105,6 +133,10 @@ describe("useFetchData", () => {
     });
 
     await waitFor(() => {
+      expect(console.error).toHaveBeenCalledWith(
+        "Erro ao buscar dados:",
+        expect.any(Error)
+      );
       expect(toast.error).toHaveBeenCalledWith(
         "Erro ao buscar dados, tente novamente...",
         { toastId: "fetch-error" }
@@ -114,32 +146,29 @@ describe("useFetchData", () => {
   });
 
   it("should handle loading states correctly", async () => {
-    useSensitiveData.mockReturnValue({
-      encryptedCpfDep: "encryptedCpf",
-      encryptedEmergPhone: "encryptedPhone",
+    getItem.mockImplementation((key) => {
+      if (key === "authToken") return "validAuthToken";
+      if (key === "encryptedCpfDep") return "encryptedCpf";
+      if (key === "encryptedEmergPhone") return "encryptedPhone";
+      return null;
     });
-  
+
     decryptData.mockResolvedValueOnce("12345678900").mockResolvedValueOnce("987654321");
-  
+
     render(<TestComponent />);
-  
+
     expect(screen.getByTestId("loading").textContent).toBe("Not Loading");
-  
-    // Clica no botão e aguarda mudanças
+
     await act(async () => {
       screen.getByText("Fetch Data").click();
     });
-  
-    // Verifica que o estado foi para "Loading..."
-    await waitFor(() => {
-      expect(screen.getByTestId("loading").textContent).toBe("Loading...");
-    }, { timeout: 1000 });
-  
-    // Verifica que o estado retornou para "Not Loading"
+
+    // Check that loading is true
+    expect(screen.getByTestId("loading").textContent).toBe("Loading...");
+
+    // Wait for the loading to complete
     await waitFor(() => {
       expect(screen.getByTestId("loading").textContent).toBe("Not Loading");
-    }, { timeout: 1000 });
+    });
   });
-  
-  
 });

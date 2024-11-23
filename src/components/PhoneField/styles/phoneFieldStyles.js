@@ -22,7 +22,7 @@ export const legendStyle = {
 
 export const inputStyle = {
   width: "100%",
-  margin: "0.1% 0.1% 2%",
+  margin: "0.1% 0.1% 1%",
   border: "none",
   fontSize: "17px",
   outline: 0,

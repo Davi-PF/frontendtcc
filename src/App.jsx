@@ -3,9 +3,6 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Routes, Route, useLocation } from "react-router-dom";
 
-// Contexts
-import { SensitiveDataProvider } from "./contexts/SensitiveDataContext/SensitiveDataContext";
-
 // Components
 import Header from "./components/Header/Header";
 
@@ -24,22 +21,20 @@ const App = () => {
   }, [location]);
 
   return (
-    <SensitiveDataProvider>
-      <div className="app-container">
-        {/* Header */}
-        <Header homeStyle={isHomePage} />
+    <div className="app-container">
+      {/* Header */}
+      <Header homeStyle={isHomePage} />
 
-        {/* Rotas */}
-        <Routes>
-          {routes.map(({ path, element }, index) => (
-            <Route key={index} path={path} element={element} />
-          ))}
-        </Routes>
+      {/* Rotas */}
+      <Routes>
+        {routes.map(({ path, element }) => (
+          <Route key={path} path={path} element={element} />
+        ))}
+      </Routes>
 
-        {/* Toast Notifications */}
-        <ToastContainer />
-      </div>
-    </SensitiveDataProvider>
+      {/* Toast Notifications */}
+      <ToastContainer />
+    </div>
   );
 };
 

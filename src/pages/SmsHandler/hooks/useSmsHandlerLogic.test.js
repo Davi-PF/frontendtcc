@@ -2,17 +2,17 @@ import React from "react";
 import { render, act, fireEvent } from "@testing-library/react";
 import axios from "axios";
 import { useSmsHandlerLogic } from "./useSmsHandlerLogic";
-import { useSensitiveData } from "../../../contexts/SensitiveDataContext/SensitiveDataContext";
 import getFunctions from "../../../functions/generalFunctions/getFunctions";
-import { decryptData } from "../../../utils/cryptoUtils";
+import { decryptInfo } from "../../../utils/cryptoUtils";
+import { getItem } from "../../../utils/localStorageUtils";
 import { toast } from "react-toastify";
 
 jest.mock("../../../utils/cryptoUtils", () => ({
-  decryptData: jest.fn(),
+  decryptInfo: jest.fn(),
 }));
 
-jest.mock("../../../contexts/SensitiveDataContext/SensitiveDataContext", () => ({
-  useSensitiveData: jest.fn(),
+jest.mock("../../../utils/localStorageUtils", () => ({
+  getItem: jest.fn(),
 }));
 
 jest.mock("../../../functions/generalFunctions/getFunctions", () => ({
@@ -23,15 +23,14 @@ jest.mock("react-toastify", () => ({
   toast: {
     success: jest.fn(),
     error: jest.fn(),
-    POSITION: {
-      TOP_CENTER: "top-center",
-    },
   },
 }));
 
 jest.mock("axios", () => ({
-  post: jest.fn(),
-  get: jest.fn(),
+  create: jest.fn(() => ({
+    get: jest.fn(),
+    post: jest.fn(),
+  })),
 }));
 
 const TestComponent = ({ navigate }) => {
@@ -51,7 +50,7 @@ const TestComponent = ({ navigate }) => {
         placeholder="SMS Code"
       />
       <button onClick={fillData}>Fill Data</button>
-      <button onClick={handleResend}>Resend SMS</button>
+      <button onClick={() => handleResend()}>Resend SMS</button>
       <button onClick={() => smsVerifyFunction(smsValue)}>Verify SMS</button>
     </div>
   );
@@ -60,53 +59,61 @@ const TestComponent = ({ navigate }) => {
 describe("useSmsHandlerLogic hook", () => {
   const mockNavigate = jest.fn();
   const mockEncryptedCpfDep = "mockEncryptedCpfDep";
-  const mockEncryptedEmergPhone = "mockEncryptedEmergPhone";
+  const mockUserPhone = "11987654321";
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    useSensitiveData.mockReturnValue({
-      encryptedCpfDep: mockEncryptedCpfDep,
-      encryptedEmergPhone: mockEncryptedEmergPhone,
+    getItem.mockImplementation((key) => {
+      if (key === "encryptedCpfDep") return mockEncryptedCpfDep;
+      if (key === "userPhone") return mockUserPhone;
+      return null;
     });
 
     getFunctions.generateTimestamp.mockReturnValue("mockTimestamp");
 
-    decryptData.mockImplementation((input) => {
-      if (input === mockEncryptedEmergPhone) {
-        return Promise.resolve("mockPhoneUser");
-      } else if (input === mockEncryptedCpfDep) {
-        return Promise.resolve("mockCpfDep");
-      }
-      return Promise.resolve(undefined);
+    decryptInfo.mockResolvedValue({
+      contentResponse: {
+        decryptedUrl: "12345678900",
+      },
     });
   });
 
   it("should fill data and send SMS on mount", async () => {
-    axios.post.mockResolvedValueOnce({}); // Mock do envio de SMS
-
-    const { getByText } = render(<TestComponent navigate={mockNavigate} />);
-
-    await act(async () => {
-      getByText("Fill Data").click();
+    axios.post.mockResolvedValueOnce({
+      status: 200,
     });
 
-    expect(axios.post).toHaveBeenCalledWith("http://localhost:8080/api/smshandler/", {
-      sendDate: "mockTimestamp",
-      cpfDep: "mockCpfDep",
-      phoneUser: "mockPhoneUser",
+    render(<TestComponent navigate={mockNavigate} />);
+
+    // Since fillData is called inside useEffect, we need to wait for it
+    await act(async () => {});
+
+    expect(decryptInfo).toHaveBeenCalledWith(mockEncryptedCpfDep);
+    expect(axios.post).toHaveBeenCalledWith(
+      "http://localhost:8080/api/smshandler/",
+      {
+        sendDate: "mockTimestamp",
+        cpfDep: "12345678900",
+        phoneUser: "+5511987654321",
+      }
+    );
+    expect(toast.success).toHaveBeenCalledWith("SMS enviado com sucesso!", {
+      autoClose: 3000,
+      toastId: "smsHandler-success",
     });
-    expect(axios.post).toHaveBeenCalledTimes(2); // Due to the initial call and the click event
   });
 
   it("should verify SMS code successfully", async () => {
     const smsCode = "123456";
 
-    axios.get.mockResolvedValueOnce({}); // Mock da verificação de SMS
+    axios.get.mockResolvedValueOnce({});
 
     const { getByPlaceholderText, getByText } = render(
       <TestComponent navigate={mockNavigate} />
     );
+
+    await act(async () => {});
 
     const input = getByPlaceholderText("SMS Code");
 
@@ -119,15 +126,14 @@ describe("useSmsHandlerLogic hook", () => {
     });
 
     expect(axios.get).toHaveBeenCalledWith(
-      `http://localhost:8080/api/smshandler/verifySmsCode?smsCode=${smsCode}&returnDate=mockTimestamp&cpfDep=mockCpfDep`
+      `http://localhost:8080/api/smshandler/verifySmsCode?smsCode=${smsCode}&returnDate=mockTimestamp&cpfDep=12345678900`
     );
     expect(toast.success).toHaveBeenCalledWith("Código verificado com sucesso!");
     expect(mockNavigate).toHaveBeenCalledWith("/dependentData");
   });
 
   it("should handle errors during SMS sending", async () => {
-    const errorMessage = "Erro no envio";
-    axios.post.mockRejectedValueOnce(new Error(errorMessage));
+    axios.post.mockRejectedValueOnce(new Error("Erro no envio"));
 
     const { getByText } = render(<TestComponent navigate={mockNavigate} />);
 
@@ -150,6 +156,8 @@ describe("useSmsHandlerLogic hook", () => {
       <TestComponent navigate={mockNavigate} />
     );
 
+    await act(async () => {});
+
     const input = getByPlaceholderText("SMS Code");
 
     await act(async () => {
@@ -163,9 +171,20 @@ describe("useSmsHandlerLogic hook", () => {
     expect(toast.error).toHaveBeenCalledWith(
       "Valor inválido. Tente novamente ou reenvie o código SMS.",
       {
-        position: toast.POSITION.TOP_CENTER,
         autoClose: 3000,
       }
+    );
+  });
+
+  it("should handle missing data in fillData", async () => {
+    getItem.mockImplementation((key) => null);
+
+    render(<TestComponent navigate={mockNavigate} />);
+
+    await act(async () => {});
+
+    expect(toast.error).toHaveBeenCalledWith(
+      "Dados ausentes. Por favor, tente novamente."
     );
   });
 });

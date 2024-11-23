@@ -5,18 +5,20 @@ import EmergencyPhone from "./EmergencyPhone";
 import { useEmergencyPhoneLogic } from "./hooks/useEmergencyPhoneLogic";
 
 jest.mock("axios", () => ({
-    create: jest.fn(() => ({
-      get: jest.fn(),
-      post: jest.fn(),
-    })),
-  }));
+  create: jest.fn(() => ({
+    get: jest.fn(),
+    post: jest.fn(),
+  })),
+}));
 
-jest.mock("./hooks/useEmergencyPhoneLogic"); // Mock do hook personalizado
+jest.mock("./hooks/useEmergencyPhoneLogic"); // Mock the custom hook
+
 jest.mock("../../components/PhoneField/PhoneField", () => (props) => (
   <div>
     PhoneField Component - Value: {props.value}
   </div>
 ));
+
 jest.mock("../../components/LoadingScreen/LoadingScreen", () => () => <div>Loading...</div>);
 
 describe("EmergencyPhone Page", () => {
@@ -38,6 +40,13 @@ describe("EmergencyPhone Page", () => {
     );
 
     expect(screen.getByText("Loading...")).toBeInTheDocument();
+
+    // Ensure other elements are not rendered
+    expect(
+      screen.queryByText(/Bem-vindo a ZLO Trackband. A pessoa que você encontrou se chama/i)
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("PhoneField Component - Value:")).not.toBeInTheDocument();
+    expect(screen.queryByText("Precisa de mais informações sobre o usuário?")).not.toBeInTheDocument();
   });
 
   it("should display emergency phone details when loading is false", () => {
@@ -58,6 +67,9 @@ describe("EmergencyPhone Page", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("John Doe")).toBeInTheDocument();
     expect(screen.getByText("PhoneField Component - Value: 11987654321")).toBeInTheDocument();
+
+    // Ensure LoadingScreen is not displayed
+    expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
   });
 
   it("should render the emergency call link with the correct href", () => {
@@ -73,8 +85,28 @@ describe("EmergencyPhone Page", () => {
       </MemoryRouter>
     );
 
-    const callLink = screen.getByRole("link", { name: "Chamada de Emergência" });
+    const img = screen.getByAltText("Chamada de Emergência");
+    const callLink = img.closest('a');
     expect(callLink).toHaveAttribute("href", "tel:+5511987654321");
+  });
+
+  it("should render the emergency call image with correct alt text", () => {
+    useEmergencyPhoneLogic.mockReturnValue({
+      loading: false,
+      dependentName: "John Doe",
+      emergPhone: "11987654321",
+    });
+
+    render(
+      <MemoryRouter>
+        <EmergencyPhone />
+      </MemoryRouter>
+    );
+
+    const img = screen.getByAltText("Chamada de Emergência");
+    expect(img).toBeInTheDocument();
+    // Optionally, check the src attribute
+    expect(img).toHaveAttribute("src", "../../img/EmergencyCall.png");
   });
 
   it("should render the footer with more info link", () => {
@@ -91,6 +123,7 @@ describe("EmergencyPhone Page", () => {
     );
 
     expect(screen.getByText("Precisa de mais informações sobre o usuário?")).toBeInTheDocument();
-    expect(screen.getByText("Clique aqui!")).toHaveAttribute("href", "/dependentFullData");
+    const moreInfoLink = screen.getByText("Clique aqui!");
+    expect(moreInfoLink).toHaveAttribute("href", "/dependentFullData");
   });
 });

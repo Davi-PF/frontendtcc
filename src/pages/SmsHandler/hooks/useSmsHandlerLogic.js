@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
 import {
@@ -17,65 +17,73 @@ export const useSmsHandlerLogic = (navigate) => {
     phoneUser: "",
   });
 
-  const fillData = async () => {
-    try {
-      const encryptedCpfDep = getItem("encryptedCpfDep");
-      let phoneUser = getItem("userPhone");
-
-      if (!encryptedCpfDep || !phoneUser) {
-        toast.error("Dados ausentes. Por favor, tente novamente.");
-        return;
-      }
-
-      let cpfDep = await decryptInfo(encryptedCpfDep);
-      cpfDep = cpfDep.contentResponse.decryptedUrl;
-
-      if (!phoneUser.startsWith("+55")) {
-        phoneUser = `+55${phoneUser}`;
-      }
-
-      const sendDate = getFunctions.generateTimestamp();
-
-      setSmsData({ sendDate, cpfDep, phoneUser });
-
-      handleResend({ sendDate, cpfDep, phoneUser });
-    } catch (error) {
-      console.error("Erro ao preencher dados:", error);
-      toast.error("Erro ao carregar os dados. Tente novamente.");
-    }
-  };
-
-  const handleResend = async (data = smsData) => {
-    try {
-      console.log("Dados: ", data);
-      console.log("Dados de SMS prontos para envio:", {
-        sendDate: data.sendDate,
-        cpfDep: data.cpfDep,
-        phoneUser: data.phoneUser,
-      });
-
-      const response = await axios.post(API_SMSHANDLER_SENDER, {
-        sendDate: data.sendDate,
-        cpfDep: data.cpfDep,
-        phoneUser: data.phoneUser,
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        toast.success("SMS enviado com sucesso!", {
-          autoClose: 3000,
-          toastId: "smsHandler-success",
+  const handleResend = useCallback(
+    async (data = smsData) => {
+      try {
+        console.log("Dados: ", data);
+        console.log("Dados de SMS prontos para envio:", {
+          sendDate: data.sendDate,
+          cpfDep: data.cpfDep,
+          phoneUser: data.phoneUser,
         });
-      } else {
-        throw new Error("Erro inesperado na resposta do servidor.");
+
+        const response = await axios.post(API_SMSHANDLER_SENDER, {
+          sendDate: data.sendDate,
+          cpfDep: data.cpfDep,
+          phoneUser: data.phoneUser,
+        });
+
+        if (response.status === 200 || response.status === 201) {
+          toast.success("SMS enviado com sucesso!", {
+            autoClose: 3000,
+            toastId: "smsHandler-success",
+          });
+        } else {
+          throw new Error("Erro inesperado na resposta do servidor.");
+        }
+      } catch (error) {
+        console.error(
+          "Erro ao enviar SMS:",
+          error?.response?.data || error.message
+        );
+        toast.error("Erro ao enviar SMS. Tente novamente.");
       }
-    } catch (error) {
-      console.error(
-        "Erro ao enviar SMS:",
-        error?.response?.data || error.message
-      );
-      toast.error("Erro ao enviar SMS. Tente novamente.");
-    }
-  };
+    },
+    [smsData]
+  );
+
+  // Memoize fillData and include handleResend and setSmsData in its dependencies
+  const fillData = useCallback(
+    async () => {
+      try {
+        const encryptedCpfDep = getItem("encryptedCpfDep");
+        let phoneUser = getItem("userPhone");
+
+        if (!encryptedCpfDep || !phoneUser) {
+          toast.error("Dados ausentes. Por favor, tente novamente.");
+          return;
+        }
+
+        let cpfDep = await decryptInfo(encryptedCpfDep);
+        cpfDep = cpfDep.contentResponse.decryptedUrl;
+
+        if (!phoneUser.startsWith("+55")) {
+          phoneUser = `+55${phoneUser}`;
+        }
+
+        const sendDate = getFunctions.generateTimestamp();
+
+        setSmsData({ sendDate, cpfDep, phoneUser });
+
+        // Call handleResend with the new data
+        handleResend({ sendDate, cpfDep, phoneUser });
+      } catch (error) {
+        console.error("Erro ao preencher dados:", error);
+        toast.error("Erro ao carregar os dados. Tente novamente.");
+      }
+    },
+    [handleResend, setSmsData]
+  );
 
   const smsVerifyFunction = async (smsCode) => {
     try {
@@ -93,10 +101,11 @@ export const useSmsHandlerLogic = (navigate) => {
       });
     }
   };
-  
+
+  // Include fillData in the dependency array
   useEffect(() => {
     fillData();
-  }, []);
+  }, [fillData]);
 
   return {
     smsValue,

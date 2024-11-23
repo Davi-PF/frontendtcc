@@ -58,25 +58,34 @@ const DependentFullData = () => {
       </p>
 
       <div style={styles.divInputs}>
+        {/* Campo Nome Completo */}
         <Input
           style={styles.input}
           fieldLabel="Nome completo"
           value={scanName}
-          onChange={(e) => setScanName(e.target.value)}
+          onChange={setScanName} // Passa o valor diretamente
         />
+
+        {/* Campo E-mail */}
         <Input
-          isEmail={true}
+          style={styles.input}
+          isEmail={true} // Validação de e-mail
           fieldLabel="E-mail"
           value={scanEmail}
-          onChange={(e) => setScanEmail(e.target.value)}
+          onChange={setScanEmail} // Passa o valor diretamente
         />
+
+        {/* Campo Telefone */}
         <Input
+          style={styles.input}
           fieldLabel="Telefone"
-          mask="phone"
+          mask="phone" // Máscara de telefone
           value={scanPhone}
-          onChange={(e) => setScanPhone(e.target.value)}
+          onChange={setScanPhone} // Passa o valor diretamente
         />
-        <Button onClick={handleEnviarDados} disabled={enviandoDados}>
+
+        {/* Botão para enviar os dados */}
+        <Button onClick={handleEnviarDados} disabled={enviandoDados} fontSize={"button"}>
           {enviandoDados ? "Enviando..." : "Enviar"}
         </Button>
       </div>

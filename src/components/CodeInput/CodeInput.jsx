@@ -1,25 +1,25 @@
 import React, { useState, useRef } from "react";
 import PropTypes from "prop-types";
+import { v4 as uuidv4 } from "uuid";
 import styles from "./styles/CodeInputStyle";
 
 const CodeInput = ({ length, onComplete }) => {
   const [code, setCode] = useState(new Array(length).fill(""));
   const inputsRef = useRef([]);
+  const keys = useRef([...Array(length)].map(() => uuidv4()));
 
   const handleChange = (value, index) => {
-    if (isNaN(value)) return; // Apenas números são permitidos
+    if (isNaN(value)) return; // Only numbers are allowed
 
     const newCode = [...code];
     newCode[index] = value;
 
     setCode(newCode);
 
-    // Foca no próximo input automaticamente, se disponível
     if (value && index < length - 1) {
       inputsRef.current[index + 1].focus();
     }
 
-    // Verifica se o código está completo
     if (newCode.every((digit) => digit !== "")) {
       onComplete(newCode.join(""));
     }
@@ -27,7 +27,6 @@ const CodeInput = ({ length, onComplete }) => {
 
   const handleKeyDown = (event, index) => {
     if (event.key === "Backspace" && !code[index] && index > 0) {
-      // Apaga o valor anterior e foca no input anterior
       inputsRef.current[index - 1].focus();
     }
   };
@@ -36,7 +35,7 @@ const CodeInput = ({ length, onComplete }) => {
     <div style={styles.container}>
       {code.map((digit, index) => (
         <input
-          key={index}
+          key={keys.current[index]}
           type="text"
           maxLength="1"
           value={digit}
@@ -51,8 +50,8 @@ const CodeInput = ({ length, onComplete }) => {
 };
 
 CodeInput.propTypes = {
-  length: PropTypes.number.isRequired, // Quantidade de inputs
-  onComplete: PropTypes.func.isRequired, // Callback quando o código está completo
+  length: PropTypes.number.isRequired,
+  onComplete: PropTypes.func.isRequired,
 };
 
 export default CodeInput;

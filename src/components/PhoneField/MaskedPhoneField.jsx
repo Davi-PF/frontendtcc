@@ -4,7 +4,8 @@ import { inputStyle } from "./styles/phoneFieldStyles";
 
 const applyPhoneMask = (value) => {
   const cleaned = value.replace(/\D/g, ""); // Remove caracteres não numéricos
-  const match = cleaned.match(/^(\d{2})(\d{1})(\d{4})(\d{4})$/);
+  const match = cleaned.match(/^(\d{2})(\d)(\d{4})(\d{4})$/);
+
   if (match) {
     return `(${match[1]}) ${match[2]} ${match[3]}-${match[4]}`;
   }

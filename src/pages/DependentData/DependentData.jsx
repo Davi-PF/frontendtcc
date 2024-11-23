@@ -49,7 +49,7 @@ const DependentData = () => {
               fontSize="title"
               shadow="large"
               height="60px"
-              width="70%"
+              width="100%"
               label="Número do Responsável"
               value={emergPhone}
               readOnly={true}
