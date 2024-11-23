@@ -15,9 +15,12 @@ jobs:
         node-version: [16.x]
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Set up Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
@@ -29,8 +32,20 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Run tests
+      - name: Run tests with coverage
         run: npm test -- --ci --coverage
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          args: >
+            -Dsonar.organization=zlotrackband-tcc
+            -Dsonar.projectKey=Davi-PF_frontendtcc
+            -Dsonar.sources=src
+            -Dsonar.tests=src
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Upload coverage to Codecov
         if: success()
