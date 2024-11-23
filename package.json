@@ -23,7 +23,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --collectCoverage --coverageReporters=text --coverageReporters=lcov",
+    "test": "react-scripts test --watchAll=false --collectCoverage --coverageReporters=text --coverageReporters=lcov",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
