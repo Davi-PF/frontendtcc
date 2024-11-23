@@ -17,12 +17,13 @@
     "react-scripts": "^5.0.1",
     "react-toastify": "^10.0.6",
     "styled-components": "^6.0.8",
+    "uuid": "^11.0.3",
     "web-vitals": "^4.2.4"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --collectCoverage --coverageReporters=text --coverageReporters=lcov",
+    "test": "react-scripts test --watchAll=false --collectCoverage --coverageReporters=text --coverageReporters=lcov",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

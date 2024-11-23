@@ -26,7 +26,7 @@ const EmergencyPhone = () => {
           <PhoneField
             fontSize="title"
             shadow="large"
-            height="60px"
+            height="55px"
             width="50%"
             label="Número de Emergência"
             value={emergPhone}

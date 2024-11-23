@@ -3,14 +3,14 @@ import { render, act, fireEvent, waitFor } from "@testing-library/react";
 import { toast } from "react-toastify";
 import { useDependentFullDataLogic } from "./useDependentFullDataLogic";
 import { decryptData } from "../../../utils/cryptoUtils";
-import { useSensitiveData } from "../../../contexts/SensitiveDataContext/SensitiveDataContext";
+import { getItem } from "../../../utils/localStorageUtils";
 
 jest.mock("../../../utils/cryptoUtils", () => ({
   decryptData: jest.fn(),
 }));
 
-jest.mock("../../../contexts/SensitiveDataContext/SensitiveDataContext", () => ({
-  useSensitiveData: jest.fn(),
+jest.mock("../../../utils/localStorageUtils", () => ({
+  getItem: jest.fn(),
 }));
 
 jest.mock("react-toastify", () => ({
@@ -69,8 +69,11 @@ describe("useDependentFullDataLogic hook", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    useSensitiveData.mockReturnValue({
-      encryptedCpfDep: mockEncryptedCpfDep,
+    getItem.mockImplementation((key) => {
+      if (key === "encryptedCpfDep") {
+        return mockEncryptedCpfDep;
+      }
+      return null;
     });
   });
 
@@ -83,6 +86,23 @@ describe("useDependentFullDataLogic hook", () => {
 
     expect(decryptData).toHaveBeenCalledWith(mockEncryptedCpfDep);
     expect(getByText("CPF: mockDecryptedCpf")).toBeInTheDocument();
+  });
+
+  it("should show error if encryptedCpfDep is not found", async () => {
+    getItem.mockImplementation((key) => {
+      if (key === "encryptedCpfDep") {
+        return null;
+      }
+      return null;
+    });
+
+    render(<TestComponent />);
+
+    await act(async () => {});
+
+    expect(toast.error).toHaveBeenCalledWith(
+      "CPF criptografado não encontrado. Tente novamente."
+    );
   });
 
   it("should show error if decryption fails", async () => {
@@ -130,29 +150,31 @@ describe("useDependentFullDataLogic hook", () => {
 
   it("should disable the button while sending data", async () => {
     decryptData.mockResolvedValueOnce("mockDecryptedCpf");
-    enviarDadosHelperMock.mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 500)));
-  
+    enviarDadosHelperMock.mockImplementation(
+      () => new Promise((resolve) => setTimeout(resolve, 500))
+    );
+
     const { getByText } = render(<TestComponent />);
-  
+
     await act(async () => {});
-  
+
     const button = getByText("Send Data");
-  
-    // Clique no botão
+
+    // Click the button
     await act(async () => {
       button.click();
     });
-  
-    // Verifica se o botão está desativado enquanto "Sending..."
+
+    // Check if the button is disabled while sending
     await waitFor(() => {
       expect(button).toHaveTextContent("Sending...");
       expect(button).toBeDisabled();
     });
-  
-    // Aguarde o envio ser concluído
+
+    // Wait for the send operation to complete
     await act(async () => {});
-  
-    // Verifica se o botão voltou para "Send Data" após o envio
+
+    // Check if the button is enabled again
     await waitFor(() => {
       expect(button).toHaveTextContent("Send Data");
       expect(button).not.toBeDisabled();

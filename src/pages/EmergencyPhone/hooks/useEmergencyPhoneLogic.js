@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "react-toastify";
 import { decryptInfo } from "../../../utils/cryptoUtils";
 import { getItem } from "../../../utils/localStorageUtils";
@@ -10,32 +10,38 @@ export const useEmergencyPhoneLogic = () => {
   const [emergPhone, setEmergPhone] = useState("");
   const [dependentName, setDependentName] = useState("");
   const [loading, setLoading] = useState(false);
-  const { navigate } = useNavigate();
+  const navigate = useNavigate();
 
-  const buscarDadosDependente = async (cpf) => {
-    const authToken = getItem("authToken");
+  const buscarDadosDependente = useCallback(
+    async (cpf) => {
+      const authToken = getItem("authToken");
 
-    if (!authToken) {
-      toast.error("Sessão expirada. Faça login novamente.");
-      return navigate("/");
-    }
+      if (!authToken) {
+        toast.error("Sessão expirada. Faça login novamente.");
+        return navigate("/");
+      }
 
-    try {
-      setLoading(true);
-      const response = await axios.get(`${API_DEPENDENT_FOUND_BY_ID}${cpf}`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
+      try {
+        setLoading(true);
+        const response = await axios.get(
+          `${API_DEPENDENT_FOUND_BY_ID}${cpf}`,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
 
-      setDependentName(response.data.contentResponse.nomeDep);
-    } catch (error) {
-      console.error(error);
-      toast.error("Erro ao buscar dados, tente novamente...");
-    } finally {
-      setLoading(false);
-    }
-  };
+        setDependentName(response.data.contentResponse.nomeDep);
+      } catch (error) {
+        console.error(error);
+        toast.error("Erro ao buscar dados, tente novamente...");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [navigate]
+  );
 
   useEffect(() => {
     const loadData = async () => {
@@ -53,10 +59,17 @@ export const useEmergencyPhoneLogic = () => {
 
         if (decryptedCpf && decryptedPhone) {
           setEmergPhone(decryptedPhone.contentResponse.decryptedUrl);
-          await buscarDadosDependente(decryptedCpf.contentResponse.decryptedUrl);
-          console.log("Teste: ", decryptedCpf.contentResponse.decryptedUrl)
+          await buscarDadosDependente(
+            decryptedCpf.contentResponse.decryptedUrl
+          );
+          console.log(
+            "Teste: ",
+            decryptedCpf.contentResponse.decryptedUrl
+          );
         } else {
-          toast.error("Erro ao descriptografar os dados, tente novamente.");
+          toast.error(
+            "Erro ao descriptografar os dados, tente novamente."
+          );
         }
       } catch (error) {
         console.error("Erro ao carregar os dados:", error);
@@ -65,7 +78,7 @@ export const useEmergencyPhoneLogic = () => {
     };
 
     loadData();
-  }, []);
+  }, [buscarDadosDependente]);
 
   return { loading, emergPhone, dependentName };
 };

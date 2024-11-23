@@ -1,179 +1,83 @@
-import { COLORS, FONTS, INPUTSIZE, SHADOWS } from "../../constants/styles";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { toast } from "react-toastify";
+import { validateEmail, handlePhoneMask } from "./inputUtils";
+import { baseStyle, baseStyleLegend } from "./inputStyles";
+import InputField from "./InputField";
 
 function Input({
-  isEmail = false,
-  fieldLabel = "Label",
-  isStatic = false,
-  textContent = "",
-  isSms = false,
-  mask = null,
-  value,
-  onChange,
-  smsVerifyFunction
+    isEmail = false,
+    fieldLabel = "Label",
+    isStatic = false,
+    textContent = "",
+    isSms = false,
+    mask = null,
+    value,
+    onChange,
+    smsVerifyFunction,
 }) {
-  const [isValidEmail, setIsValidEmail] = useState(null);
-  const [emailValue, setEmailValue] = useState("");
-  const [widthIsSms, setWidthIsSms] = useState("");
+    const [isValidEmail, setIsValidEmail] = useState(null);
+    const [widthIsSms, setWidthIsSms] = useState("100%");
 
-  useEffect(() => {
-    if (isSms) setWidthIsSms("60%");
-    else setWidthIsSms(INPUTSIZE.INPUT_SIZE);
-  })
+    useEffect(() => {
+        setWidthIsSms(isSms ? "60%" : "100%");
+    }, [isSms]);
 
-  let borderColor =
-    isValidEmail === true
-      ? COLORS.GREEN_MAIN
-      : isValidEmail === false
-        ? COLORS.RED_MAIN
-        : COLORS.BLUE_MAIN;
+    // Refatorado: Função utilitária para determinar a cor da borda
+    const getBorderColor = (isValidEmail) => {
+        if (isValidEmail === true) return "green";
+        if (isValidEmail === false) return "red";
+        return "blue";
+    };
 
-  const baseStyle = {
-    padding: "10px 20px",
-    width: widthIsSms,
-    height: "7vh",
-    borderRadius: "5px",
-    border: `1px solid ${borderColor}`,
-    boxShadow: SHADOWS.LARGE_BOX,
-    fontFamily: FONTS.FAMILY,
-    fontSize: FONTS.INPUT_SIZE,
-    transition: "box-shadow 0.3s, border 0.3s",
-    color: COLORS.BLACK,
-    backgroundColor: COLORS.WHITE,
-    margin: "0 auto"
-  };
+    const borderColor = getBorderColor(isValidEmail);
 
-  const baseStyleLegend = {
-    color: COLORS.BLUE_MAIN
-  }
+    const handleChange = (e) => {
+        let newValue = e.target.value;
+        if (mask === "phone") newValue = handlePhoneMask(newValue);
+        if (isEmail) setIsValidEmail(validateEmail(newValue));
+        onChange?.(newValue);
+    };
 
-  const validateEmail = (email) => {
-    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-    setIsValidEmail(regex.test(email));
-  };
-
-  const handlePhoneMask = (value) => {
-    let cleanValue = value.replace(/\D/g, '');
-    let formattedValue = cleanValue;
-
-    // Aplicando a máscara (XX) X XXXX-XXXX
-    formattedValue = formattedValue
-      .replace(/^(\d{2})(\d)/, '($1) $2')
-      .replace(/(\d{5})(\d)/, '$1-$2')
-      .replace(/(-\d{4})\d+?$/, '$1');
-
-    return formattedValue;
-  }
-
-  const handleChange = (e) => {
-    if (isSms) {
-      onChange && onChange(e);
-    } else {
-      if (isEmail) {
-        setEmailValue(e.target.value);
-        onChange && onChange(e); // Passe o evento completo
-      } else if (mask === 'phone') {
-        e.target.value = handlePhoneMask(e.target.value);
-        onChange && onChange(e); // Passe o evento completo
-      } else {
-        onChange && onChange(e); // Passe o evento completo
-      }
-    }
-  };
-
-  const outOfFocus = () => {
-    if (isEmail) {
-      validateEmail(emailValue);
-    }
-  };
-
-  const handleProps = () => {
-    if (!isSms) {
-      return <>
-        {isStatic
-          ?
-          <input style={{
-            width: "100%",
-            margin: "0.1% 0.1% 2%",
-            outline: 0,
-            border: "none",
-            fontFamily: FONTS.FAMILY,
-            fontSize: '16px',
-            textAlign: 'center',
-            color: baseStyle.color,
-            backgroundColor: baseStyle.backgroundColor,
-            fontFamily: FONTS.FAMILY
-          }} value={textContent} disabled></input>
-          :
-          <input
-            style={{
-              width: "100%",
-              margin: "0.1% 0.1% 2%",
-              outline: 0,
-              border: "none",
-              color: baseStyle.color,
-              backgroundColor: baseStyle.backgroundColor,
-              fontFamily: FONTS.FAMILY,
-              fontSize: '16px',
-              textAlign: 'center'
-            }}
-            value={value}
-            onChange={handleChange}
-            onBlur={outOfFocus}
-          ></input>
-        }
-      </>
-    } else {
-      return <>
-        <input
-          style={{
-            width: "100%",
-            margin: "0.1% 0.1% 2%",
-            fontSize: '24px',
-            outline: 0,
-            border: "none",
-            color: baseStyle.color,
-            backgroundColor: baseStyle.backgroundColor,
-            textAlign: "center",
-          }}
-          onChange={handleChange}
-          onBlur={outOfFocus}
-          onKeyUp={(e) => {
-            if (e.key == "Enter") {
-              e.preventDefault()
-              if (e.target.value.length == 0) {
-                toast.error("Digite o código enviado por SMS.", {
-                  position: toast.POSITION.TOP_CENTER,
-                  autoClose: 3000,
-                });
-              } else {
-                if (e.target.value.length >= 7 && e.target.value.length < 9) {
-                  smsVerifyFunction(e.target.value)
-                } else {
-                  toast.error("Você deve digitar um código de 6 dígitos.", {
-                    autoClose: 3000,
-                  });
-                }
-              }
+    const handleSmsKeyUp = (e) => {
+        if (e.key === "Enter") {
+            if (!e.target.value) {
+                toast.error("Digite o código enviado por SMS.");
+            } else if (e.target.value.length >= 7 && e.target.value.length <= 8) {
+                smsVerifyFunction(e.target.value);
+            } else {
+                toast.error("Código deve ter entre 7 e 8 dígitos.");
             }
-          }}
-          type="number"
-        ></input>
-      </>
-    }
-  }
+        }
+    };
 
-  return (
-    <fieldset
-      style={{
-        ...baseStyle,
-      }}
-    >
-      <legend style={baseStyleLegend}>{fieldLabel}</legend>
-      {handleProps()}
-    </fieldset>
-  );
+    return (
+        <fieldset style={baseStyle(borderColor, widthIsSms)}>
+            <legend style={baseStyleLegend}>{fieldLabel}</legend>
+            {isStatic ? (
+                <InputField value={textContent} disabled />
+            ) : (
+                <InputField
+                    type={isSms ? "number" : "text"}
+                    value={value}
+                    onChange={handleChange}
+                    onKeyUp={isSms ? handleSmsKeyUp : undefined}
+                />
+            )}
+        </fieldset>
+    );
 }
+
+Input.propTypes = {
+    isEmail: PropTypes.bool,
+    fieldLabel: PropTypes.string,
+    isStatic: PropTypes.bool,
+    textContent: PropTypes.string,
+    isSms: PropTypes.bool,
+    mask: PropTypes.string,
+    value: PropTypes.string,
+    onChange: PropTypes.func,
+    smsVerifyFunction: PropTypes.func,
+};
 
 export default Input;

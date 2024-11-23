@@ -4,7 +4,7 @@ import PhoneField from "./PhoneField";
 import { COLORS } from "../../constants/styles";
 import { validatePhone } from "../../utils/phoneFieldUtils";
 
-jest.mock("./MaskedInput", () => ({ value, onChange, readOnly }) => (
+jest.mock("./MaskedPhoneField", () => ({ value, onChange, readOnly }) => (
   <input
     data-testid="masked-input"
     value={value}
@@ -15,10 +15,9 @@ jest.mock("./MaskedInput", () => ({ value, onChange, readOnly }) => (
 
 jest.mock("../../utils/phoneFieldUtils", () => ({
   validatePhone: jest.fn(),
-  mapShadow: jest.fn((shadow) => shadow), // Retorna o mesmo valor para simplificação
-  mapFontSize: jest.fn((fontSize) => fontSize), // Retorna o mesmo valor para simplificação
+  mapShadow: jest.fn((shadow) => shadow), // Return the same value for simplicity
+  mapFontSize: jest.fn((fontSize) => fontSize), // Return the same value for simplicity
 }));
-
 
 describe("PhoneField Component", () => {
   it("renders with default props", () => {
@@ -66,11 +65,11 @@ describe("PhoneField Component", () => {
   });
 
   it("shows invalid styles when phone number is not valid", () => {
-    validatePhone.mockReturnValue(false); // Simula validação retornando falso
+    validatePhone.mockReturnValue(false); // Simulate validation returning false
     const { container } = render(<PhoneField label="Invalid Phone" value="123" />);
     
     const fieldset = container.querySelector("fieldset");
-    expect(validatePhone).toHaveBeenCalledWith("123"); // Verifica que a validação foi chamada
-    expect(fieldset).toHaveStyle(`border: 1px solid ${COLORS.BLUE_MAIN}`); // Verifica estilo para número inválido
+    expect(validatePhone).toHaveBeenCalledWith("123"); // Verify that validation was called
+    expect(fieldset).toHaveStyle(`border: 1px solid ${COLORS.BLUE_MAIN}`); // Verify style for invalid number
   });
 });

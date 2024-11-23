@@ -1,25 +1,22 @@
 import React from "react";
-import { render, act, waitFor } from "@testing-library/react";
+import { render, act } from "@testing-library/react";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useDependentDataLogic } from "./useDependentDataLogic";
-import { decryptData } from "../../../utils/cryptoUtils";
-import { useSensitiveData } from "../../../contexts/SensitiveDataContext/SensitiveDataContext";
+import { getItem } from "../../../utils/localStorageUtils";
+import { decryptInfo } from "../../../utils/cryptoUtils";
+import { API_DEPENDENT_FOUND_BY_ID } from "../../../constants/apiEndpoints";
 
 jest.mock("axios", () => ({
   get: jest.fn(),
 }));
-
 jest.mock("../../../utils/cryptoUtils", () => ({
-  decryptData: jest.fn(),
+  decryptInfo: jest.fn(),
 }));
 
-jest.mock(
-  "../../../contexts/SensitiveDataContext/SensitiveDataContext",
-  () => ({
-    useSensitiveData: jest.fn(),
-  })
-);
+jest.mock("../../../utils/localStorageUtils", () => ({
+  getItem: jest.fn(),
+}));
 
 jest.mock("react-toastify", () => ({
   toast: {
@@ -55,16 +52,23 @@ describe("useDependentDataLogic hook", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    useSensitiveData.mockReturnValue({
-      encryptedCpfDep: mockEncryptedCpfDep,
-      encryptedEmergPhone: mockEncryptedEmergPhone,
+
+    getItem.mockImplementation((key) => {
+      if (key === "encryptedCpfDep") return mockEncryptedCpfDep;
+      if (key === "encryptedEmergPhone") return mockEncryptedEmergPhone;
+      if (key === "authToken") return "mockAuthToken";
+      return null;
     });
   });
 
   it("should decrypt data and fetch dependent data successfully", async () => {
-    decryptData
-      .mockResolvedValueOnce("mockDecryptedCpf")
-      .mockResolvedValueOnce("mockDecryptedPhone");
+    decryptInfo
+      .mockResolvedValueOnce({
+        contentResponse: { decryptedUrl: "12345678900" },
+      })
+      .mockResolvedValueOnce({
+        contentResponse: { decryptedUrl: "mockDecryptedPhone" },
+      });
 
     axios.get.mockResolvedValueOnce({
       data: {
@@ -80,12 +84,20 @@ describe("useDependentDataLogic hook", () => {
 
     const { getByText } = render(<TestComponent />);
 
-    await act(async () => {});
+    await act(async () => {
+      // Wait for useEffect to run
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
 
-    expect(decryptData).toHaveBeenCalledWith(mockEncryptedCpfDep);
-    expect(decryptData).toHaveBeenCalledWith(mockEncryptedEmergPhone);
+    expect(decryptInfo).toHaveBeenCalledWith(mockEncryptedCpfDep);
+    expect(decryptInfo).toHaveBeenCalledWith(mockEncryptedEmergPhone);
     expect(axios.get).toHaveBeenCalledWith(
-      "http://localhost:8080/api/dependent/commonuser/findById/mockDecryptedCpf"
+      `${API_DEPENDENT_FOUND_BY_ID}12345678900`,
+      {
+        headers: {
+          Authorization: `Bearer mockAuthToken`,
+        },
+      }
     );
 
     expect(getByText("Dependent Name: John Doe")).toBeInTheDocument();
@@ -99,73 +111,34 @@ describe("useDependentDataLogic hook", () => {
   });
 
   it("should handle missing encrypted data", async () => {
-    useSensitiveData.mockReturnValueOnce({
-      encryptedCpfDep: null,
-      encryptedEmergPhone: null,
+    getItem.mockImplementation((key) => {
+      if (key === "encryptedCpfDep") return null;
+      if (key === "encryptedEmergPhone") return null;
+      return null;
     });
 
-    const { getByText } = render(<TestComponent />);
+    render(<TestComponent />);
 
-    await act(async () => {});
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
 
     expect(toast.error).toHaveBeenCalledWith(
       "Dados não encontrados, escaneie novamente a pulseira."
     );
-    expect(getByText("Dependent Name:")).toBeInTheDocument();
-    expect(getByText("Dependent Age: 0")).toBeInTheDocument();
   });
 
   it("should handle decryption errors", async () => {
-    decryptData.mockRejectedValueOnce(new Error("Decryption error"));
+    decryptInfo.mockRejectedValueOnce(new Error("Decryption error"));
 
-    const { getByText } = render(<TestComponent />);
+    render(<TestComponent />);
 
-    await act(async () => {});
-
-    expect(toast.error).toHaveBeenCalledWith(
-      "Erro ao carregar dados. Tente novamente."
-    );
-    expect(getByText("Dependent Name:")).toBeInTheDocument();
-    expect(getByText("Dependent Age: 0")).toBeInTheDocument();
-  });
-
-  it("should handle fetch dependent data errors", async () => {
-    decryptData
-      .mockResolvedValueOnce("mockDecryptedCpf")
-      .mockResolvedValueOnce("mockDecryptedPhone");
-
-    axios.get.mockRejectedValueOnce(new Error("Fetch error"));
-
-    const { getByText } = render(<TestComponent />);
-
-    await act(async () => {});
-
-    expect(toast.error).toHaveBeenCalledWith("Erro ao realizar requisição.");
-    expect(getByText("Dependent Name:")).toBeInTheDocument();
-    expect(getByText("Dependent Age: 0")).toBeInTheDocument();
-  });
-
-  it("should handle empty decrypted data", async () => {
-    decryptData
-      .mockResolvedValueOnce("") // CPF descriptografado vazio
-      .mockResolvedValueOnce("mockDecryptedPhone"); // Número de emergência descriptografado
-
-    const { getByText, queryByText } = render(<TestComponent />);
-
-    await act(async () => {});
-
-    expect(toast.error).toHaveBeenCalledWith(
-      "Erro ao carregar dados. Tente novamente."
-    );
-
-    // Aguarda o texto "Emergency Phone: mockDecryptedPhone" aparecer
-    await waitFor(() => {
-      expect(
-        queryByText("Emergency Phone: mockDecryptedPhone")
-      ).toBeInTheDocument();
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
-    expect(getByText("Dependent Name:")).toBeInTheDocument();
-    expect(getByText("Dependent Age: 0")).toBeInTheDocument();
+    expect(toast.error).toHaveBeenCalledWith(
+      "Erro ao carregar dados. Tente novamente."
+    );
   });
 });

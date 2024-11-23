@@ -17,9 +17,8 @@ export const useDependentDataLogic = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Obtém os dados do localStorage
-        const encryptedCpfDep = getItem("encryptedCpfDep"); // CPF criptografado
-        const encryptedEmergPhone = getItem("encryptedEmergPhone"); // Telefone criptografado
+        const encryptedCpfDep = getItem("encryptedCpfDep");
+        const encryptedEmergPhone = getItem("encryptedEmergPhone");
 
         if (!encryptedCpfDep || !encryptedEmergPhone) {
           toast.error("Dados não encontrados, escaneie novamente a pulseira.");
@@ -27,7 +26,6 @@ export const useDependentDataLogic = () => {
           return;
         }
 
-        // Descriptografa os dados
         const decryptedCpf = await decryptInfo(encryptedCpfDep);
         const decryptedPhone = await decryptInfo(encryptedEmergPhone);
 
@@ -35,26 +33,24 @@ export const useDependentDataLogic = () => {
           throw new Error("Erro ao descriptografar CPF.");
         }
 
-        // Atualiza o estado do telefone
         setEmergPhone(
           decryptedPhone.contentResponse.decryptedUrl
             ? String(decryptedPhone.contentResponse.decryptedUrl)
             : ""
         );
 
-        // Busca os dados do dependente
         await fetchDependentData(decryptedCpf.contentResponse.decryptedUrl);
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
         toast.error("Erro ao carregar dados. Tente novamente.");
       } finally {
         await new Promise((resolve) => setTimeout(resolve, 2000)); 
-        setIsLoading(false); // Finaliza o carregamento
+        setIsLoading(false);
       }
     };
 
     loadData();
-  }, []); // Carrega apenas uma vez ao montar o componente
+  }, []);
 
   const fetchDependentData = async (cpfDep) => {
     try {

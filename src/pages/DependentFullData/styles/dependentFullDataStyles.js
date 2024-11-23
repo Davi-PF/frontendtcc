@@ -12,14 +12,14 @@ const styles = {
   },
   title: {
     textAlign: "center",
-    fontSize: "20px",
+    fontSize: "2.7vh",
     fontWeight: "bold",
     marginTop: "0.2vh",
     marginBottom: "20px",
   },
   constantText: {
     textAlign: "center",
-    fontSize: FONTS.BUTTON_SIZE,
+    fontSize: "2vh",
     lineHeight: 1.5,
     maxWidth: "600px",
     margin: "0 auto",

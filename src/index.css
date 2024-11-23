@@ -20,3 +20,10 @@ code {
     opacity: 0.5;
   }
 }
+
+/* In your global CSS file or a global style component */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+
