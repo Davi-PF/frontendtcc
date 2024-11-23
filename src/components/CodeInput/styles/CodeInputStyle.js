@@ -6,7 +6,7 @@ const styles = {
       margin: "20px 0",
     },
     input: {
-      width: "50px",
+      width: "40px",
       height: "50px",
       textAlign: "center",
       fontSize: "20px",

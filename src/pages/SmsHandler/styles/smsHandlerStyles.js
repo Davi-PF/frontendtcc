@@ -11,7 +11,7 @@ const styles = {
     justifyContent: "center",
   },
   title: {
-    margin: "5vh 2vw 2vh 2vw",
+    margin: "0vh 2vw 2vh 2vw",
     fontWeight: "normal",
     textAlign: "center",
     fontSize: "1.2rem", // Unidade relativa para ser responsivo
@@ -30,7 +30,7 @@ const styles = {
     gap: "15px", // Espaçamento consistente entre elementos
     width: "100%", // Para inputs ocuparem o espaço disponível
     maxWidth: "400px", // Máximo para manter um layout agradável em telas maiores
-    marginTop: "20px",
+    marginTop: "10px",
   },
   button: {
     width: "100%", // Botão ocupa todo o espaço do container

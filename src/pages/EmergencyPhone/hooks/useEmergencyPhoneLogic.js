@@ -1,20 +1,33 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { useSensitiveData } from "../../../contexts/SensitiveDataContext/SensitiveDataContext";
-import { decryptData } from "../../../utils/cryptoUtils";
+import { decryptInfo } from "../../../utils/cryptoUtils";
+import { getItem } from "../../../utils/localStorageUtils";
 import axios from "axios";
 import { API_DEPENDENT_FOUND_BY_ID } from "../../../constants/apiEndpoints";
+import { useNavigate } from "react-router-dom";
 
 export const useEmergencyPhoneLogic = () => {
-  const { encryptedCpfDep, encryptedEmergPhone } = useSensitiveData();
   const [emergPhone, setEmergPhone] = useState("");
   const [dependentName, setDependentName] = useState("");
   const [loading, setLoading] = useState(false);
+  const { navigate } = useNavigate();
 
   const buscarDadosDependente = async (cpf) => {
+    const authToken = getItem("authToken");
+
+    if (!authToken) {
+      toast.error("Sessão expirada. Faça login novamente.");
+      return navigate("/");
+    }
+
     try {
       setLoading(true);
-      const response = await axios.get(`${API_DEPENDENT_FOUND_BY_ID}${cpf}`);
+      const response = await axios.get(`${API_DEPENDENT_FOUND_BY_ID}${cpf}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
       setDependentName(response.data.contentResponse.nomeDep);
     } catch (error) {
       console.error(error);
@@ -26,18 +39,22 @@ export const useEmergencyPhoneLogic = () => {
 
   useEffect(() => {
     const loadData = async () => {
+      const encryptedCpfDep = getItem("encryptedCpfDep");
+      const encryptedEmergPhone = getItem("encryptedEmergPhone");
+
       if (!encryptedCpfDep || !encryptedEmergPhone) {
         toast.error("Dados não encontrados, escaneie novamente a pulseira.");
         return;
       }
 
       try {
-        const decryptedCpf = await decryptData(encryptedCpfDep);
-        const decryptedPhone = await decryptData(encryptedEmergPhone);
+        const decryptedCpf = await decryptInfo(encryptedCpfDep);
+        const decryptedPhone = await decryptInfo(encryptedEmergPhone);
 
         if (decryptedCpf && decryptedPhone) {
-          setEmergPhone(String(decryptedPhone));
-          await buscarDadosDependente(decryptedCpf);
+          setEmergPhone(decryptedPhone.contentResponse.decryptedUrl);
+          await buscarDadosDependente(decryptedCpf.contentResponse.decryptedUrl);
+          console.log("Teste: ", decryptedCpf.contentResponse.decryptedUrl)
         } else {
           toast.error("Erro ao descriptografar os dados, tente novamente.");
         }
@@ -48,7 +65,7 @@ export const useEmergencyPhoneLogic = () => {
     };
 
     loadData();
-  }, [encryptedCpfDep, encryptedEmergPhone]);
+  }, []);
 
   return { loading, emergPhone, dependentName };
 };

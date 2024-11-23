@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { useSensitiveData } from "../../../contexts/SensitiveDataContext/SensitiveDataContext";
-import { decryptData } from "../../../utils/cryptoUtils";
+import { decryptInfo } from "../../../utils/cryptoUtils";
 import axios from "axios";
 import { API_DEPENDENT_FOUND_BY_ID } from "../../../constants/apiEndpoints";
+import { getItem } from "../../../utils/localStorageUtils";
 
 export const useDependentDataLogic = () => {
   const [dependentName, setDependentName] = useState("");
@@ -12,43 +12,64 @@ export const useDependentDataLogic = () => {
   const [dependentGender, setDependentGender] = useState("");
   const [dependentMedicalReport, setDependentMedicalReport] = useState("");
   const [emergPhone, setEmergPhone] = useState("");
-
-  const { encryptedCpfDep, encryptedEmergPhone } = useSensitiveData();
+  const [isLoading, setIsLoading] = useState(true); // Estado para controlar o carregamento
 
   useEffect(() => {
     const loadData = async () => {
       try {
+        // Obtém os dados do localStorage
+        const encryptedCpfDep = getItem("encryptedCpfDep"); // CPF criptografado
+        const encryptedEmergPhone = getItem("encryptedEmergPhone"); // Telefone criptografado
+
         if (!encryptedCpfDep || !encryptedEmergPhone) {
           toast.error("Dados não encontrados, escaneie novamente a pulseira.");
+          setIsLoading(false);
           return;
         }
 
         // Descriptografa os dados
-        const decryptedCpf = await decryptData(encryptedCpfDep);
-        const decryptedPhone = await decryptData(encryptedEmergPhone);
+        const decryptedCpf = await decryptInfo(encryptedCpfDep);
+        const decryptedPhone = await decryptInfo(encryptedEmergPhone);
 
         if (!decryptedCpf) {
-          setEmergPhone(decryptedPhone ? String(decryptedPhone) : "");
           throw new Error("Erro ao descriptografar CPF.");
         }
 
-        setEmergPhone(decryptedPhone !== undefined && decryptedPhone !== null ? String(decryptedPhone) : "");
+        // Atualiza o estado do telefone
+        setEmergPhone(
+          decryptedPhone.contentResponse.decryptedUrl
+            ? String(decryptedPhone.contentResponse.decryptedUrl)
+            : ""
+        );
 
-        console.log("EmergPhone State:", emergPhone);
-
-        await fetchDependentData(decryptedCpf);
+        // Busca os dados do dependente
+        await fetchDependentData(decryptedCpf.contentResponse.decryptedUrl);
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
         toast.error("Erro ao carregar dados. Tente novamente.");
+      } finally {
+        await new Promise((resolve) => setTimeout(resolve, 2000)); 
+        setIsLoading(false); // Finaliza o carregamento
       }
     };
 
     loadData();
-  }, [encryptedCpfDep, encryptedEmergPhone]);
+  }, []); // Carrega apenas uma vez ao montar o componente
 
   const fetchDependentData = async (cpfDep) => {
     try {
-      const response = await axios.get(`${API_DEPENDENT_FOUND_BY_ID}${cpfDep}`);
+      const authToken = getItem("authToken");
+
+      if (!authToken) {
+        throw new Error("Token JWT não encontrado. Faça login novamente.");
+      }
+
+      const response = await axios.get(`${API_DEPENDENT_FOUND_BY_ID}${cpfDep}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
       const { nomeDep, idadeDep, tipoSanguineo, generoDep, laudo } =
         response.data.contentResponse;
 
@@ -59,7 +80,9 @@ export const useDependentDataLogic = () => {
       setDependentMedicalReport(laudo);
     } catch (error) {
       console.error("Erro ao buscar dados do dependente:", error);
-      toast.error("Erro ao realizar requisição.");
+      toast.error("Erro ao realizar requisição.", {
+        toastId: "fetch-error"
+      });
     }
   };
 
@@ -70,5 +93,6 @@ export const useDependentDataLogic = () => {
     dependentGender,
     emergPhone,
     dependentMedicalReport,
+    isLoading, // Expondo o estado de carregamento
   };
 };

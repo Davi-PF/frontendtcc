@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { useSensitiveData } from "../../../contexts/SensitiveDataContext/SensitiveDataContext";
 import { decryptData } from "../../../utils/cryptoUtils";
+import { getItem } from "../../../utils/localStorageUtils";
 
 export const useDependentFullDataLogic = () => {
   const [cpfDep, setCpfDep] = useState(null); // Estado para o CPF descriptografado
@@ -10,18 +10,18 @@ export const useDependentFullDataLogic = () => {
   const [scanPhone, setScanPhone] = useState("");
   const [enviandoDados, setEnviandoDados] = useState(false);
 
-  const { encryptedCpfDep } = useSensitiveData();
-
   useEffect(() => {
     const loadCpf = async () => {
+      const encryptedCpfDep = getItem("encryptedCpfDep"); // Obtém o valor do localStorage
+
       if (!encryptedCpfDep) {
         toast.error("CPF criptografado não encontrado. Tente novamente.");
         return;
       }
 
       try {
-        const decryptedCpf = await decryptData(encryptedCpfDep);
-        setCpfDep(decryptedCpf); // Seta o CPF descriptografado no estado
+        const decryptedCpf = await decryptData(encryptedCpfDep); // Descriptografa o CPF
+        setCpfDep(decryptedCpf); // Armazena o CPF descriptografado no estado
       } catch (error) {
         console.error("Erro ao descriptografar CPF:", error);
         toast.error("Erro ao descriptografar os dados. Tente novamente.");
@@ -29,7 +29,7 @@ export const useDependentFullDataLogic = () => {
     };
 
     loadCpf();
-  }, [encryptedCpfDep]);
+  }, []); // O efeito é executado apenas uma vez, ao montar o componente
 
   const enviarDados = async (enviarDadosHelper, navigate) => {
     setEnviandoDados(true);

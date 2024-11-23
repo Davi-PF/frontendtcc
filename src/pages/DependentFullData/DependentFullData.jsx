@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import { enviarDadosHelper } from "./helpers/enviarDadosHelper";
 import { useDependentFullDataLogic } from "./hooks/useDependentFullDataLogic";
+import { getItem, setItem } from "../../utils/localStorageUtils";
 import styles from "./styles/dependentFullDataStyles";
 
 const DependentFullData = () => {
@@ -20,11 +21,26 @@ const DependentFullData = () => {
     enviarDados,
   } = useDependentFullDataLogic();
 
+  // Busca dados iniciais do terceiro
+  useEffect(() => {
+    const terceiroEmail = getItem("userEmail", "");
+    const terceiroPhone = getItem("userPhone", "");
+
+    if (terceiroEmail) setScanEmail(terceiroEmail);
+    if (terceiroPhone) setScanPhone(terceiroPhone);
+  }, [setScanEmail, setScanPhone]);
+
   const handleEnviarDados = () => {
     if (!cpfDep) {
       // Impede envio se o CPF não foi carregado
       return;
     }
+
+    // Atualiza o localStorage com os dados modificados
+    setItem("userEmail", scanEmail);
+    setItem("userPhone", scanPhone);
+
+    // Envia os dados
     enviarDados(enviarDadosHelper, navigate);
   };
 
