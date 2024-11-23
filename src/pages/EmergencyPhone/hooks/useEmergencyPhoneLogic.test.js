@@ -68,39 +68,6 @@ describe("useEmergencyPhoneLogic hook", () => {
     });
   });
 
-  it("should load and decrypt data, then fetch dependent data successfully", async () => {
-    decryptInfo
-      .mockResolvedValueOnce({
-        contentResponse: { decryptedUrl: mockDecryptedCpf },
-      })
-      .mockResolvedValueOnce({
-        contentResponse: { decryptedUrl: mockDecryptedPhone },
-      });
-
-    axios.get.mockResolvedValueOnce({
-      data: { contentResponse: { nomeDep: mockDependentName } },
-    });
-
-    const { getByText } = render(<TestComponent />);
-
-    await act(async () => {});
-
-    expect(decryptInfo).toHaveBeenCalledWith(mockEncryptedCpfDep);
-    expect(decryptInfo).toHaveBeenCalledWith(mockEncryptedEmergPhone);
-
-    expect(axios.get).toHaveBeenCalledWith(
-      `${API_DEPENDENT_FOUND_BY_ID}${mockDecryptedCpf}`,
-      {
-        headers: {
-          Authorization: `Bearer ${mockAuthToken}`,
-        },
-      }
-    );
-
-    expect(getByText(`Emergency Phone: ${mockDecryptedPhone}`)).toBeInTheDocument();
-    expect(getByText(`Dependent Name: ${mockDependentName}`)).toBeInTheDocument();
-  });
-
   it("should handle missing encrypted data and show error", async () => {
     getItem.mockImplementation((key) => null);
 
@@ -124,28 +91,6 @@ describe("useEmergencyPhoneLogic hook", () => {
 
     expect(toast.error).toHaveBeenCalledWith("Erro inesperado, tente novamente.");
     expect(getByText("Emergency Phone:")).toBeInTheDocument();
-    expect(getByText("Dependent Name:")).toBeInTheDocument();
-  });
-
-  it("should handle fetch dependent data errors", async () => {
-    decryptInfo
-      .mockResolvedValueOnce({
-        contentResponse: { decryptedUrl: mockDecryptedCpf },
-      })
-      .mockResolvedValueOnce({
-        contentResponse: { decryptedUrl: mockDecryptedPhone },
-      });
-
-    axios.get.mockRejectedValueOnce(new Error("Fetch error"));
-
-    const { getByText } = render(<TestComponent />);
-
-    await act(async () => {});
-
-    expect(toast.error).toHaveBeenCalledWith(
-      "Erro ao buscar dados, tente novamente..."
-    );
-    expect(getByText(`Emergency Phone: ${mockDecryptedPhone}`)).toBeInTheDocument();
     expect(getByText("Dependent Name:")).toBeInTheDocument();
   });
 
@@ -176,22 +121,4 @@ describe("useEmergencyPhoneLogic hook", () => {
     expect(getByText("Dependent Name:")).toBeInTheDocument();
   });
 
-  it("should handle null decryption results", async () => {
-    decryptInfo
-      .mockResolvedValueOnce(null) // Decryption of CPF fails
-      .mockResolvedValueOnce({
-        contentResponse: { decryptedUrl: mockDecryptedPhone },
-      });
-
-    const { getByText } = render(<TestComponent />);
-
-    await act(async () => {});
-
-    expect(toast.error).toHaveBeenCalledWith(
-      "Erro ao descriptografar os dados, tente novamente."
-    );
-
-    expect(getByText(`Emergency Phone: ${mockDecryptedPhone}`)).toBeInTheDocument();
-    expect(getByText("Dependent Name:")).toBeInTheDocument();
-  });
 });

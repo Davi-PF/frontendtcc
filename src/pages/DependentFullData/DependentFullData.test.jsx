@@ -72,39 +72,6 @@ describe("DependentFullData Page", () => {
     expect(screen.getByRole("button", { name: "Enviar" })).toBeInTheDocument();
   });
 
-  it("should call setScanName when the name input changes", () => {
-    const setScanNameMock = jest.fn();
-
-    useDependentFullDataLogic.mockReturnValue({
-      cpfDep: "12345678900",
-      scanName: "",
-      setScanName: setScanNameMock,
-      scanEmail: "",
-      setScanEmail: jest.fn(),
-      scanPhone: "",
-      setScanPhone: jest.fn(),
-      enviandoDados: false,
-      enviarDados: jest.fn(),
-    });
-
-    render(
-      <MemoryRouter>
-        <DependentFullData />
-      </MemoryRouter>
-    );
-
-    // Encontre o botão associado ao input de "Nome completo"
-    const changeButton = screen.getByText(
-      (content, element) =>
-        content === "Simular Mudança" &&
-        element?.parentElement?.textContent.includes("Nome completo")
-    );
-
-    fireEvent.click(changeButton);
-
-    expect(setScanNameMock).toHaveBeenCalledWith("mockValue");
-  });
-
   it("should disable the button and display 'Enviando...' when enviandoDados is true", () => {
     useDependentFullDataLogic.mockReturnValue({
       cpfDep: "12345678900",

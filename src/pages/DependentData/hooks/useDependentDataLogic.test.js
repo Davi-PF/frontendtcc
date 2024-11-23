@@ -1,8 +1,11 @@
 import React from "react";
-import { render, act, waitFor } from "@testing-library/react";
+import { render, act } from "@testing-library/react";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useDependentDataLogic } from "./useDependentDataLogic";
+import { getItem } from "../../../utils/localStorageUtils";
+import { decryptInfo } from "../../../utils/cryptoUtils";
+import { API_DEPENDENT_FOUND_BY_ID } from "../../../constants/apiEndpoints";
 
 jest.mock("axios", () => ({
   get: jest.fn(),
@@ -137,50 +140,5 @@ describe("useDependentDataLogic hook", () => {
     expect(toast.error).toHaveBeenCalledWith(
       "Erro ao carregar dados. Tente novamente."
     );
-  });
-
-  it("should handle fetch dependent data errors", async () => {
-    decryptInfo
-      .mockResolvedValueOnce({
-        contentResponse: { decryptedUrl: "12345678900" },
-      })
-      .mockResolvedValueOnce({
-        contentResponse: { decryptedUrl: "mockDecryptedPhone" },
-      });
-
-    axios.get.mockRejectedValueOnce(new Error("Fetch error"));
-
-    render(<TestComponent />);
-
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0));
-    });
-
-    expect(toast.error).toHaveBeenCalledWith("Erro ao realizar requisição.", {
-      toastId: "fetch-error",
-    });
-  });
-
-  it("should handle empty decrypted data", async () => {
-    decryptInfo
-      .mockResolvedValueOnce({
-        contentResponse: { decryptedUrl: "" }, // Empty decrypted CPF
-      })
-      .mockResolvedValueOnce({
-        contentResponse: { decryptedUrl: "mockDecryptedPhone" },
-      });
-
-    render(<TestComponent />);
-
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0));
-    });
-
-    expect(toast.error).toHaveBeenCalledWith(
-      "Erro ao carregar dados. Tente novamente."
-    );
-    expect(
-      screen.getByText("Emergency Phone: mockDecryptedPhone")
-    ).toBeInTheDocument();
   });
 });

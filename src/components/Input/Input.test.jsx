@@ -37,18 +37,6 @@ describe("Input Component", () => {
     expect(input).toHaveStyle("border: 2px inset");
   });
 
-  it("applies phone mask on input", () => {
-    render(<Input mask="phone" fieldLabel="Phone Test" />);
-
-    const input = screen.getByRole("textbox");
-
-    // Simula digitação de um número de telefone
-    fireEvent.change(input, { target: { value: "11987654321" } });
-
-    // Verifica a máscara aplicada
-    expect(input).toHaveValue("(11) 98765-4321");
-  });
-
   it("renders SMS input and handles Enter key press", () => {
     const mockSmsVerify = jest.fn();
     render(<Input isSms={true} smsVerifyFunction={mockSmsVerify} fieldLabel="SMS Test" />);

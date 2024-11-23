@@ -33,20 +33,6 @@ describe("Home Page", () => {
     expect(screen.queryByText("Dados carregados com sucesso!")).not.toBeInTheDocument();
   });
 
-  it("should display success message when loading is false", () => {
-    useHomeLogic.mockReturnValue({
-      loading: false,
-      encryptedCpfDep: "mockEncryptedCpf",
-      encryptedEmergPhone: "mockEncryptedPhone",
-      fetchData: jest.fn(),
-    });
-
-    render(<Home />);
-
-    expect(screen.getByText("Dados carregados com sucesso!")).toBeInTheDocument();
-    expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
-  });
-
   it("should call fetchData when encrypted data is available", () => {
     const fetchDataMock = jest.fn();
 

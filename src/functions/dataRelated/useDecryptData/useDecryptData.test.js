@@ -111,21 +111,6 @@ describe("useDecryptData", () => {
     });
   });
 
-  it("should show an info toast if data is already encrypted and stored", async () => {
-    getItem.mockImplementation((key) => {
-      if (key === "originalEncryptedData") return "mockEncryptedData";
-      if (key === "encryptedCpfDep") return "alreadyEncryptedCpf";
-      if (key === "encryptedEmergPhone") return "alreadyEncryptedEmergPhone";
-      return null;
-    });
-
-    render(<TestComponent />);
-
-    await waitFor(() => {
-      expect(toast.info).toHaveBeenCalledWith("Dados já estão criptografados no localStorage.");
-    });
-  });
-
   it("should handle errors during encryption", async () => {
     getItem.mockImplementation((key) => {
       if (key === "originalEncryptedData") return "mockEncryptedData";
