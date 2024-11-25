@@ -1,7 +1,7 @@
-import { COLORS, FONTS } from "../../../constants/styles";
+import { COLORS, FONTS} from "../../../constants/styles";
 
 export const getFieldStyles = (isValidPhone, width, height, shadow, fontSize) => ({
-  padding: "10px 20px",
+  padding: "0.873rem 0rem 1rem 0rem",
   borderRadius: "5px",
   border: `1px solid ${isValidPhone ? COLORS.GREEN_MAIN : COLORS.BLUE_MAIN}`,
   transition: "box-shadow 0.3s, border 0.3s",
@@ -10,10 +10,11 @@ export const getFieldStyles = (isValidPhone, width, height, shadow, fontSize) =>
   color: COLORS.BLACK,
   backgroundColor: COLORS.WHITE,
   width,
-  height,
   boxShadow: shadow,
   fontSize,
+  ...(height && height !== "auto" && { height }), // Only set height if it's defined and not 'auto'
 });
+
 
 export const legendStyle = {
   color: COLORS.BLUE_MAIN,
@@ -21,10 +22,10 @@ export const legendStyle = {
 };
 
 export const inputStyle = {
-  width: "100%",
+  width: "auto",
   margin: "0.1% 0.1% 1%",
   border: "none",
-  fontSize: "17px",
+  fontSize: "1rem", // Ajustado para 16px
   outline: 0,
   backgroundColor: COLORS.WHITE,
   fontFamily: FONTS.FAMILY,

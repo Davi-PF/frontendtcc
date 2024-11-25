@@ -27,7 +27,7 @@ const styles = {
   },
   divInputs: {
     display: "flex",
-    height: "50vh",
+    height: "47vh",
     flexDirection: "column",
     justifyContent: "space-between",
     alignItems: "center",

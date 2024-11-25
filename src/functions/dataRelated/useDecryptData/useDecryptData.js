@@ -25,9 +25,6 @@ const processDecryptedData = async (encryptedData) => {
     const cpfDep = cpfDepPart.split("=")[1];
     const emergPhone = emergPhonePart.split("=")[1];
 
-    console.log("CPF DEP:", cpfDep);
-    console.log("Emerg Phone:", emergPhone);
-
     if (cpfDep && emergPhone) {
       return { cpfDep, emergPhone };
     } else {

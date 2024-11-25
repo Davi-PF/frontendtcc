@@ -125,8 +125,6 @@ describe("DependentFullData Page", () => {
   
     await Promise.resolve(); // Aguarda o término das Promises
   
-    console.log("Arguments passed to enviarDadosMock:", enviarDadosMock.mock.calls);
-  
     expect(enviarDadosMock).toHaveBeenCalledWith(enviarDadosHelper, navigateMock); // Agora compara com o mock correto
   });
   

@@ -5,8 +5,8 @@ import { mapShadow, mapFontSize, validatePhone } from "../../utils/phoneFieldUti
 import { getFieldStyles, legendStyle } from "../PhoneField/styles/phoneFieldStyles";
 
 const PhoneField = ({
-  width = "140px",
-  height = "40px",
+  width = "auto",
+  height = "auto",
   label = "",
   fontSize = "title",
   shadow = "none",
@@ -21,9 +21,9 @@ const PhoneField = ({
     setIsValidPhone(validatePhone(value));
   }, [value]);
 
-  const handleChange = (e) => {
-    setPhoneValue(e.target.value);
-    setIsValidPhone(validatePhone(e.target.value));
+  const handleChange = (maskedValue) => {
+    setPhoneValue(maskedValue);
+    setIsValidPhone(validatePhone(maskedValue));
   };
 
   const fieldStyles = getFieldStyles(

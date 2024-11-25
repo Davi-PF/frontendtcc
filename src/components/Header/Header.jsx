@@ -4,6 +4,7 @@ import { COLORS } from '../../constants/styles';
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft, faBagShopping } from '@fortawesome/free-solid-svg-icons';
+import zloLogo from "../../images/ZloLogoIcon.png"
 
 function Header({ homeStyle }) {
 
@@ -35,7 +36,7 @@ function Header({ homeStyle }) {
     return (
         <div style={backgroundStyle}>
             {homeStyle &&
-                <img src="/img/ZloLogoIcon.png" style={imgStyleLogo} alt="ZloLogo" />
+                <img src={`${zloLogo}`} style={imgStyleLogo} alt="ZloLogo" />
             }
             {!homeStyle &&
                 <div style={headerStyle}>
@@ -43,7 +44,7 @@ function Header({ homeStyle }) {
                         <FontAwesomeIcon icon={faAngleLeft} style={iconHeaderStyle} />
                     </Link>
                     <img
-                        src="/img/ZloLogoIcon.png"
+                        src={`${zloLogo}`}
                         style={imgStyleLogo}
                         alt="ZloLogo"
                     />

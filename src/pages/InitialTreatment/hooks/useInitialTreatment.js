@@ -27,7 +27,6 @@ const useInitialTreatment = () => {
 
     try {
       setLoading(true);
-      console.log("Email: " + email + " Phone:" + phone);
       const response = await axios.post(
         "http://zlo-login-microservice-env-2.eba-cm4nxyyj.us-east-1.elasticbeanstalk.com/auth/temp-user",
         { "email": email, "phoneNumber": phone },
@@ -42,11 +41,11 @@ const useInitialTreatment = () => {
         toast.success("Obrigado por ajudar!");
         navigate("/loadingScreen");
       } else {
-        toast.error("Erro ao obter o token. Tente novamente.");
+        toast.error("Erro ao obter o token. Tente novamente.", {toastId: "failed-to-get-token"});
       }
     } catch (error) {
       console.error("Erro ao enviar os dados:", error);
-      toast.error("Erro ao conectar ao servidor. Tente novamente.");
+      toast.error("Erro ao conectar ao servidor. Tente novamente.", {toastId: "failed-to-connect-server"});
     } finally {
       setLoading(false);
     }

@@ -1,11 +1,8 @@
 import { COLORS, FONTS, SHADOWS } from "../../constants/styles";
 
 export const baseStyle = (borderColor, width) => ({
-    padding: "10px 20px",
     width: width,
     maxWidth: "36vh",
-    height: "7vh",
-    maxHeight: "7vh",
     borderRadius: "5px",
     border: `1px solid ${borderColor}`,
     boxShadow: SHADOWS.LARGE_BOX,
@@ -31,6 +28,7 @@ export const inputStyles = {
         fontFamily: FONTS.FAMILY,
         fontSize: "2vh",
         textAlign: "center",
+        margin: "auto"
     },
     sms: {
         width: "100%",

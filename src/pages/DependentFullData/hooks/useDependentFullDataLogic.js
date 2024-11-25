@@ -15,7 +15,7 @@ export const useDependentFullDataLogic = () => {
       const encryptedCpfDep = getItem("encryptedCpfDep"); // Obtém o valor do localStorage
 
       if (!encryptedCpfDep) {
-        toast.error("CPF criptografado não encontrado. Tente novamente.");
+        toast.error("CPF criptografado não encontrado. Tente novamente.", {toastId: "encryptedCpf-not-found"});
         return;
       }
 
@@ -24,7 +24,7 @@ export const useDependentFullDataLogic = () => {
         setCpfDep(decryptedCpf); // Armazena o CPF descriptografado no estado
       } catch (error) {
         console.error("Erro ao descriptografar CPF:", error);
-        toast.error("Erro ao descriptografar os dados. Tente novamente.");
+        toast.error("Erro ao descriptografar os dados. Tente novamente.", { toastId: "failed-to-decrypt-data" });
       }
     };
 
@@ -43,10 +43,10 @@ export const useDependentFullDataLogic = () => {
         scanPhone: numeroTelefone,
         navigate,
       });
-      toast.success("Dados enviados com sucesso!");
+      toast.success("Dados enviados com sucesso!", {toastId: "sent-success"});
     } catch (error) {
       console.error("Erro ao enviar os dados:", error);
-      toast.error("Erro ao enviar os dados. Tente novamente.");
+      toast.error("Erro ao enviar os dados. Tente novamente.", {toastId: "sent-failure"});
     } finally {
       setEnviandoDados(false);
     }
