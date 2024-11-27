@@ -1,6 +1,5 @@
 import { useCallback, useState, useEffect, useRef } from "react";
 import { useFetchData } from "../../../functions/dataRelated/useFetchData/useFetchData";
-import { decryptData, encryptInfo } from "../../../utils/cryptoUtils";
 import { setItem, getItem } from "../../../utils/localStorageUtils";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -11,9 +10,8 @@ export function useHomeLogic() {
 
   const [encryptedCpfDep, setEncryptedCpfDep] = useState("");
   const [encryptedEmergPhone, setEncryptedEmergPhone] = useState("");
-  const hasProcessedData = useRef(false); // Flag para controlar execução única
+  const hasProcessedData = useRef(false); 
 
-  // Verifica token JWT na inicialização
   useEffect(() => {
     const authToken = getItem("authToken");
     if (!authToken) {
@@ -29,9 +27,11 @@ export function useHomeLogic() {
       if (hasProcessedData.current) return;
       hasProcessedData.current = true;
 
-      const encryptedData = getItem("originalEncryptedData");
+      const originalEncryptedData = getItem("originalEncryptedData");
+      
+      let decodedEncryptedData = decodeURIComponent(originalEncryptedData)
 
-      if (!encryptedData) {
+      if (!decodedEncryptedData) {
         toast.error("Nenhum dado encontrado. Por favor, tente novamente.", {
           toastId: "missing-data",
         });
@@ -39,41 +39,24 @@ export function useHomeLogic() {
       }
 
       try {
-        // Descriptografa a URL
-        const decryptedString = await decryptData(encryptedData);
-        if (!decryptedString) {
-          toast.error("Erro ao descriptografar os dados, tente novamente.", {
-            toastId: "decrypt-error",
-          });
-          return;
-        }
-
-        // Processa a URL descriptografada
-        let decryptedUrl = decryptedString.contentResponse.decryptedUrl.replace(
-          /"/g,
-          ""
-        );
-
-        const [cpfDepPart, emergPhonePart] = decryptedUrl.split("&");
-        const cpfDep = cpfDepPart.split("=")[1];
-        const emergPhone = emergPhonePart.split("=")[1];
+        const [cpfDepPart, emergPhonePart] = decodedEncryptedData.split("&");
+        const encryptedCpfDep = cpfDepPart.split("=")[1];
+        const encryptedEmergPhone = emergPhonePart.split("=")[1];
 
         // Criptografa os dados apenas se ainda não estiverem criptografados
         const alreadyEncryptedCpf = getItem("encryptedCpfDep");
         const alreadyEncryptedPhone = getItem("encryptedEmergPhone");
 
         if (!alreadyEncryptedCpf && !alreadyEncryptedPhone) {
-          const encryptedCpf = await encryptInfo(cpfDep);
-          const encryptedPhone = await encryptInfo(emergPhone);
 
-          if (encryptedCpf && encryptedPhone) {
-            setItem("encryptedCpfDep", encryptedCpf.contentResponse.encryptedUrl);
+          if (encryptedCpfDep && encryptedEmergPhone) {
+            setItem("encryptedCpfDep", encryptedCpfDep);
             setItem(
               "encryptedEmergPhone",
-              encryptedPhone.contentResponse.encryptedUrl
+              encryptedEmergPhone
             );
-            setEncryptedCpfDep(encryptedCpf.contentResponse.encryptedUrl);
-            setEncryptedEmergPhone(encryptedPhone.contentResponse.encryptedUrl);
+            setEncryptedCpfDep(encryptedCpfDep);
+            setEncryptedEmergPhone(encryptedEmergPhone);
             toast.success("Dados processados com sucesso!");
           } else {
             toast.error("Erro ao criptografar os dados, tente novamente.", {

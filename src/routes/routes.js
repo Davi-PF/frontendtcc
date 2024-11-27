@@ -6,7 +6,7 @@ import DependentFullData from "../pages/DependentFullData/DependentFullData";
 import InitialTreatment from "../pages/InitialTreatment/InitialTreatment";
 
 export const routes = [
-  { path: "/", element: <InitialTreatment /> },
+  { path: "/home", element: <InitialTreatment /> },
   { path: "/emergencyPhone", element: <EmergencyPhone /> },
   { path: "/dependentFullData", element: <DependentFullData /> },
   { path: "/dependentData", element: <DependentData /> },
