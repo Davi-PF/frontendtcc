@@ -17,7 +17,7 @@ export const useEmergencyPhoneLogic = () => {
       const authToken = getItem("authToken");
 
       if (!authToken) {
-        toast.error("Sessão expirada. Faça login novamente.");
+        toast.error("Sessão expirada. Faça login novamente.", {toastId: "expired-session"});
         return navigate("/");
       }
 
@@ -35,7 +35,7 @@ export const useEmergencyPhoneLogic = () => {
         setDependentName(response.data.contentResponse.nomeDep);
       } catch (error) {
         console.error(error);
-        toast.error("Erro ao buscar dados, tente novamente...");
+        toast.error("Erro ao buscar dados, tente novamente...", { toastId: "failed-to-find-data"});
       } finally {
         setLoading(false);
       }
@@ -49,7 +49,7 @@ export const useEmergencyPhoneLogic = () => {
       const encryptedEmergPhone = getItem("encryptedEmergPhone");
 
       if (!encryptedCpfDep || !encryptedEmergPhone) {
-        toast.error("Dados não encontrados, escaneie novamente a pulseira.");
+        toast.error("Dados não encontrados, escaneie novamente a pulseira.", { toastId: "not-found-data"});
         return;
       }
 
@@ -62,18 +62,14 @@ export const useEmergencyPhoneLogic = () => {
           await buscarDadosDependente(
             decryptedCpf.contentResponse.decryptedUrl
           );
-          console.log(
-            "Teste: ",
-            decryptedCpf.contentResponse.decryptedUrl
-          );
         } else {
           toast.error(
-            "Erro ao descriptografar os dados, tente novamente."
+            "Erro ao descriptografar os dados, tente novamente.", { toastId: "failed-to-decrypt"}
           );
         }
       } catch (error) {
         console.error("Erro ao carregar os dados:", error);
-        toast.error("Erro inesperado, tente novamente.");
+        toast.error("Erro inesperado, tente novamente.", { toastId: "unexpected-error"});
       }
     };
 

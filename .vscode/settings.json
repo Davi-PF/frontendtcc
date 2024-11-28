@@ -1,6 +1,6 @@
 {
     "sonarlint.connectedMode.project": {
-        "connectionId": "zlotrackband",
-        "projectKey": "zlotrackband_sonarqube-tcc"
+        "connectionId": "zlotrackband-tcc",
+        "projectKey": "Davi-PF_frontendtcc"
     }
 }

@@ -20,13 +20,12 @@ const styles = {
   },
   divInputs: {
     display: "flex",
-    height: "50vh",
     flexDirection: "column",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     alignItems: "center",
   },
   downloadLink: {
-    fontSize: FONTS.BUTTON_SIZE,
+    fontSize: FONTS.TITLE_SIZE,
     color: COLORS.DARK_BLUE,
     fontWeight: "500",
     cursor: "pointer",

@@ -1,12 +1,10 @@
 import React from "react";
 import { render, act } from "@testing-library/react";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { useEmergencyPhoneLogic } from "./useEmergencyPhoneLogic";
 import { decryptInfo } from "../../../utils/cryptoUtils";
 import { getItem } from "../../../utils/localStorageUtils";
 import { useNavigate } from "react-router-dom";
-import { API_DEPENDENT_FOUND_BY_ID } from "../../../constants/apiEndpoints";
 
 jest.mock("../../../utils/cryptoUtils", () => ({
   decryptInfo: jest.fn(),
@@ -52,7 +50,7 @@ describe("useEmergencyPhoneLogic hook", () => {
   const mockAuthToken = "mockAuthToken";
   const mockDecryptedCpf = "12345678900";
   const mockDecryptedPhone = "11987654321";
-  const mockDependentName = "John Doe";
+  // const mockDependentName = "John Doe"; Removido por razões de teste
   const navigate = jest.fn();
 
   beforeEach(() => {
@@ -76,7 +74,8 @@ describe("useEmergencyPhoneLogic hook", () => {
     await act(async () => {});
 
     expect(toast.error).toHaveBeenCalledWith(
-      "Dados não encontrados, escaneie novamente a pulseira."
+      "Dados não encontrados, escaneie novamente a pulseira.",
+      { toastId: "not-found-data" }
     );
     expect(getByText("Emergency Phone:")).toBeInTheDocument();
     expect(getByText("Dependent Name:")).toBeInTheDocument();
@@ -89,7 +88,10 @@ describe("useEmergencyPhoneLogic hook", () => {
 
     await act(async () => {});
 
-    expect(toast.error).toHaveBeenCalledWith("Erro inesperado, tente novamente.");
+    expect(toast.error).toHaveBeenCalledWith(
+      "Erro inesperado, tente novamente.",
+      { toastId: "unexpected-error" }
+    );
     expect(getByText("Emergency Phone:")).toBeInTheDocument();
     expect(getByText("Dependent Name:")).toBeInTheDocument();
   });
@@ -114,11 +116,15 @@ describe("useEmergencyPhoneLogic hook", () => {
 
     await act(async () => {});
 
-    expect(toast.error).toHaveBeenCalledWith("Sessão expirada. Faça login novamente.");
+    expect(toast.error).toHaveBeenCalledWith(
+      "Sessão expirada. Faça login novamente.",
+      { toastId: "expired-session" }
+    );
     expect(navigate).toHaveBeenCalledWith("/");
 
-    expect(getByText(`Emergency Phone: ${mockDecryptedPhone}`)).toBeInTheDocument();
+    expect(
+      getByText(`Emergency Phone: ${mockDecryptedPhone}`)
+    ).toBeInTheDocument();
     expect(getByText("Dependent Name:")).toBeInTheDocument();
   });
-
 });

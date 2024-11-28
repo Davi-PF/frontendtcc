@@ -21,7 +21,7 @@ export const containerStyle = {
   borderRadius: "0.625rem",
   boxSizing: "border-box",
   // Media query for larger screens
-  '@media (min-width: 768px)': {
+  '@media (minWidth: 768px)': {
     maxWidth: "500px",
   },
 };

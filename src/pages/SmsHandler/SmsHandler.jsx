@@ -30,12 +30,12 @@ const SmsHandler = () => {
         />
         <Button
           onClick={() => {
-            if (!smsValue || smsValue.length < 7 || smsValue.length > 8) {
+            if (!smsValue || smsValue.length <= 6) {
               toast.error(
-                "O código deve ter exatamente 7 ou 8 números. Verifique e tente novamente.",
+                "O código deve ter exatamente 6. Verifique e tente novamente.",
                 {
-                  position: toast.POSITION.TOP_CENTER,
-                  autoClose: 3000,
+                  toastId: "sms-missing-pattern",
+                  autoClose: 2000,
                 }
               );
               return;

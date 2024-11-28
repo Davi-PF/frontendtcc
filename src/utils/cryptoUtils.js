@@ -64,10 +64,10 @@ export const encryptData = async (data) => {
 
 export const decryptInfo = async (encryptedInfo) => {
   try {
-    const authToken = getItem("authToken");
-    if (!authToken) {
-      throw new Error("Token JWT não encontrado no localStorage.");
-    }
+    // const authToken = getItem("authToken");
+    // if (!authToken) {
+    //   throw new Error("Token JWT não encontrado no localStorage.");
+    // }
 
     const response = await axios.post(
       `${API_DECRYPT}`,
@@ -75,7 +75,7 @@ export const decryptInfo = async (encryptedInfo) => {
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
+          // Authorization: `Bearer ${authToken}`,
         },
       }
     );
@@ -92,10 +92,10 @@ export const decryptInfo = async (encryptedInfo) => {
 
 export const encryptInfo = async (decryptedInfo) => {
   try {
-    const authToken = getItem("authToken");
-    if (!authToken) {
-      throw new Error("Token JWT não encontrado no localStorage.");
-    }
+    // const authToken = getItem("authToken");
+    // if (!authToken) {
+    //   throw new Error("Token JWT não encontrado no localStorage.");
+    // }
 
     const response = await axios.post(
       `${API_ENCRYPT}`,
@@ -103,7 +103,7 @@ export const encryptInfo = async (decryptedInfo) => {
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
+          // Authorization: `Bearer ${authToken}`,
         },
       }
     );

@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { inputStyle } from "./styles/phoneFieldStyles";
 
 const applyPhoneMask = (value) => {
-  const cleaned = value.replace(/\D/g, ""); // Remove caracteres não numéricos
+  const cleaned = value.replace(/\D/g, "");
   const match = cleaned.match(/^(\d{2})(\d)(\d{4})(\d{4})$/);
 
   if (match) {

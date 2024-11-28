@@ -33,7 +33,6 @@ const mapColor = color => {
 
 function Button({width, height, shadow, fontSize, color, children, margin, onClick}) {
     const constantStyle = {
-        padding: '10px 20px',
         border: 'none',
         borderRadius: '10px',
         cursor: 'pointer',

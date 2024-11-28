@@ -4,6 +4,7 @@ import { decryptInfo } from "../../../utils/cryptoUtils";
 import axios from "axios";
 import { API_DEPENDENT_FOUND_BY_ID } from "../../../constants/apiEndpoints";
 import { getItem } from "../../../utils/localStorageUtils";
+import { useNavigate } from "react-router-dom";
 
 export const useDependentDataLogic = () => {
   const [dependentName, setDependentName] = useState("");
@@ -12,16 +13,55 @@ export const useDependentDataLogic = () => {
   const [dependentGender, setDependentGender] = useState("");
   const [dependentMedicalReport, setDependentMedicalReport] = useState("");
   const [emergPhone, setEmergPhone] = useState("");
-  const [isLoading, setIsLoading] = useState(true); // Estado para controlar o carregamento
+  const [isLoading, setIsLoading] = useState(true);
+
+  const navigate = useNavigate();
+
+  const authToken = getItem("authToken");
 
   useEffect(() => {
+    const fetchDependentData = async (cpfDep) => {
+      try {
+        if (!authToken) {
+          toast.error("Sessão expirada, faça login novamente.", {
+            toastId: "expired-session",
+          });
+          navigate("/");
+          return;
+        }
+
+        const response = await axios.get(
+          `${API_DEPENDENT_FOUND_BY_ID}${cpfDep}`,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+
+        const { nomeDep, idadeDep, tipoSanguineo, generoDep, laudo } =
+          response.data.contentResponse;
+
+        setDependentName(nomeDep);
+        setDependentAge(idadeDep);
+        setDependentBloodType(tipoSanguineo);
+        setDependentGender(generoDep);
+        setDependentMedicalReport(laudo);
+      } catch (error) {
+        console.error("Erro ao buscar dados do dependente:", error);
+        toast.error("Erro ao realizar requisição.", {
+          toastId: "fetch-error",
+        });
+      }
+    };
+
     const loadData = async () => {
       try {
         const encryptedCpfDep = getItem("encryptedCpfDep");
         const encryptedEmergPhone = getItem("encryptedEmergPhone");
 
         if (!encryptedCpfDep || !encryptedEmergPhone) {
-          toast.error("Dados não encontrados, escaneie novamente a pulseira.");
+          toast.error("Dados não encontrados, escaneie novamente a pulseira.", { toastId: "data-not-found"});
           setIsLoading(false);
           return;
         }
@@ -42,45 +82,15 @@ export const useDependentDataLogic = () => {
         await fetchDependentData(decryptedCpf.contentResponse.decryptedUrl);
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
-        toast.error("Erro ao carregar dados. Tente novamente.");
+        toast.error("Erro ao carregar dados. Tente novamente.", {toastId: "failed-to-fetch-dependent-data"});
       } finally {
-        await new Promise((resolve) => setTimeout(resolve, 2000)); 
+        await new Promise((resolve) => setTimeout(resolve, 2000));
         setIsLoading(false);
       }
     };
 
     loadData();
-  }, []);
-
-  const fetchDependentData = async (cpfDep) => {
-    try {
-      const authToken = getItem("authToken");
-
-      if (!authToken) {
-        throw new Error("Token JWT não encontrado. Faça login novamente.");
-      }
-
-      const response = await axios.get(`${API_DEPENDENT_FOUND_BY_ID}${cpfDep}`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      const { nomeDep, idadeDep, tipoSanguineo, generoDep, laudo } =
-        response.data.contentResponse;
-
-      setDependentName(nomeDep);
-      setDependentAge(idadeDep);
-      setDependentBloodType(tipoSanguineo);
-      setDependentGender(generoDep);
-      setDependentMedicalReport(laudo);
-    } catch (error) {
-      console.error("Erro ao buscar dados do dependente:", error);
-      toast.error("Erro ao realizar requisição.", {
-        toastId: "fetch-error"
-      });
-    }
-  };
+  }, [authToken, navigate]);
 
   return {
     dependentName,
@@ -89,6 +99,6 @@ export const useDependentDataLogic = () => {
     dependentGender,
     emergPhone,
     dependentMedicalReport,
-    isLoading, // Expondo o estado de carregamento
+    isLoading,
   };
 };

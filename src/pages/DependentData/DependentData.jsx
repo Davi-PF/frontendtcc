@@ -1,7 +1,6 @@
 import React from "react";
 import { useDependentDataLogic } from "./hooks/useDependentDataLogic";
 import Input from "../../components/Input/Input";
-import PhoneField from "../../components/PhoneField/PhoneField";
 import { LoadingPlaceholder } from "../../components/LoadingPlaceholder/LoadingPlaceholder"; // Importa o componente de loading
 import styles from "./styles/dependentDataStyles";
 
@@ -45,14 +44,11 @@ const DependentData = () => {
           <LoadingPlaceholder />
         ) : (
           emergPhone && (
-            <PhoneField
-              fontSize="title"
-              shadow="large"
-              height="60px"
-              width="100%"
-              label="Número do Responsável"
-              value={emergPhone}
-              readOnly={true}
+            <Input
+              isStatic={true}
+              textContent={isLoading ? "Carregando..." : emergPhone}
+              fieldLabel="Número do Responsável"
+              mask="phone"
             />
           )
         )}

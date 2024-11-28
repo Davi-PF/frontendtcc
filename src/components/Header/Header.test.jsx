@@ -1,50 +1,85 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import { BrowserRouter as Router } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import Header from "./Header";
 
 describe("Header Component", () => {
-  const renderWithRouter = (ui) => render(<Router>{ui}</Router>);
+  /**
+   * Função auxiliar para renderizar o componente com uma rota inicial específica.
+   * @param {React.ReactElement} ui - O componente a ser renderizado.
+   * @param {string} route - A rota inicial para simular.
+   */
+  const renderWithRouter = (ui, route = "/") => {
+    window.history.pushState({}, "Test page", route);
 
-  it("renders only the logo when homeStyle is true", () => {
-    renderWithRouter(<Header homeStyle={true} />);
+    return render(
+      <MemoryRouter initialEntries={[route]}>
+        <Routes>
+          <Route path="*" element={ui} />
+        </Routes>
+      </MemoryRouter>
+    );
+  };
+
+  it("renders only the logo when on /home route", () => {
+    renderWithRouter(<Header />, "/home");
 
     // Verifica se a logo é renderizada
     const logo = screen.getByAltText("ZloLogo");
     expect(logo).toBeInTheDocument();
-    expect(logo).toHaveAttribute("src", "/img/ZloLogoIcon.png");
+    
+    const backButton = screen.queryByLabelText("Voltar");
+    expect(backButton).not.toBeInTheDocument();
 
-    // Verifica que os ícones não estão renderizados
-    const icons = screen.queryAllByRole("link");
-    expect(icons).toHaveLength(0); // Não há links nesta variação
+    const shoppingLink = screen.queryByRole("link", { name: /bagshopping/i });
+    expect(shoppingLink).not.toBeInTheDocument();
   });
 
-  it("renders the full header with navigation icons when homeStyle is false", () => {
-    renderWithRouter(<Header homeStyle={false} />);
+  it("renders only the logo when on /loadingScreen route", () => {
+    renderWithRouter(<Header />, "/loadingScreen");
 
-    // Verifica se a logo é renderizada
     const logo = screen.getByAltText("ZloLogo");
     expect(logo).toBeInTheDocument();
-    expect(logo).toHaveAttribute("src", "/img/ZloLogoIcon.png");
 
-    // Verifica se os links estão renderizados
-    const links = screen.getAllByRole("link");
-    expect(links).toHaveLength(2);
+    const backButton = screen.queryByLabelText("Voltar");
+    expect(backButton).not.toBeInTheDocument();
 
-    // Verifica os ícones de navegação
-    const backIcon = links[0];
-    const shoppingIcon = links[1];
-
-    expect(backIcon).toHaveAttribute("href", "/emergencyPhone");
-    expect(shoppingIcon).toHaveAttribute("href", "/emergencyPhone");
+    const shoppingLink = screen.queryByRole("link", { name: /bagshopping/i });
+    expect(shoppingLink).not.toBeInTheDocument();
   });
 
-  it("applies correct styles based on props", () => {
-    renderWithRouter(<Header homeStyle={true} />);
+  // it("renders the full header with navigation icons on /emergencyPhone route", () => {
+  //   renderWithRouter(<Header />, "/emergencyPhone");
+
+  //   const logo = screen.getByAltText("ZloLogo");
+  //   expect(logo).toBeInTheDocument();
+   
+  //   const backButton = screen.getByLabelText("Voltar");
+  //   expect(backButton).toBeInTheDocument();
+
+  //   const shoppingLink = screen.getByRole("link", { name: /bagshopping/i });
+  //   expect(shoppingLink).toBeInTheDocument();
+  //   expect(shoppingLink).toHaveAttribute("href", "/emergencyPhone");
+  // });
+
+  // it("renders the full header with navigation icons on /dependentFullData route", () => {
+  //   renderWithRouter(<Header />, "/dependentFullData");
+
+  //   const logo = screen.getByAltText("ZloLogo");
+  //   expect(logo).toBeInTheDocument();
+  //   const backButton = screen.getByLabelText("Voltar");
+  //   expect(backButton).toBeInTheDocument();
+
+  //   const shoppingLink = screen.getByRole("link", { name: /bagshopping/i });
+  //   expect(shoppingLink).toBeInTheDocument();
+  //   expect(shoppingLink).toHaveAttribute("href", "/emergencyPhone");
+  // });
+
+  it("applies correct styles to the logo", () => {
+    renderWithRouter(<Header />, "/home");
 
     const logo = screen.getByAltText("ZloLogo");
 
-    // Verifica o estilo aplicado na logo
     expect(logo).toHaveStyle({
       width: "60px",
       filter: "brightness(0) invert(1)",

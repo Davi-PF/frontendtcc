@@ -23,7 +23,7 @@ const InitialTreatment = () => {
       </p>
       <div style={containerStyle}>
         {/* Only the form is inside the card now */}
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e)=> handleSubmit(e)}>
           <div style={{ marginBottom: "1rem" }}>
             <label htmlFor="email" style={labelStyle}>
               E-mail

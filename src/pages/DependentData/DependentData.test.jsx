@@ -11,23 +11,45 @@ jest.mock("axios", () => ({
 }));
 
 // Mock for the LoadingPlaceholder component
-jest.mock("../../components/LoadingPlaceholder/LoadingPlaceholder", () => () => (
-  <div data-testid="loading-placeholder">Loading...</div>
-));
+jest.mock(
+  "../../components/LoadingPlaceholder/LoadingPlaceholder",
+  () => () => <div data-testid="loading-placeholder">Loading...</div>
+);
 
-// Mock for the Input component
-jest.mock("../../components/Input/Input", () => (props) => (
-  <div>
-    Input Component - Label: {props.fieldLabel}, Value: {props.textContent}
-  </div>
-));
+jest.mock("../../components/Input/Input", () => {
+  const PropTypes = require("prop-types");
+  const MockInput = (props) => (
+    <div>
+      Input Component - Label: {props.fieldLabel}, Value: {props.textContent}
+    </div>
+  );
+
+  // Definir PropTypes para o componente mockado Input
+  MockInput.propTypes = {
+    fieldLabel: PropTypes.string.isRequired,
+    textContent: PropTypes.string.isRequired,
+  };
+
+  return MockInput;
+});
 
 // Mock for the PhoneField component
-jest.mock("../../components/PhoneField/PhoneField", () => (props) => (
-  <div>
-    PhoneField Component - Label: {props.label}, Value: {props.value}
-  </div>
-));
+jest.mock("../../components/PhoneField/PhoneField", () => {
+  const PropTypes = require("prop-types");
+  const MockPhoneField = (props) => (
+    <div>
+      PhoneField Component - Label: {props.label}, Value: {props.value}
+    </div>
+  );
+
+  // Definir PropTypes para o componente mockado PhoneField
+  MockPhoneField.propTypes = {
+    label: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
+  };
+
+  return MockPhoneField;
+});
 
 // Mock for the custom hook
 jest.mock("./hooks/useDependentDataLogic");
@@ -38,6 +60,7 @@ describe("DependentData Page", () => {
   });
 
   it("should render all data when isLoading is false", () => {
+    // Mock do hook com os valores esperados
     useDependentDataLogic.mockReturnValue({
       dependentName: "João da Silva",
       dependentAge: "25",
@@ -47,10 +70,11 @@ describe("DependentData Page", () => {
       dependentMedicalReport: "http://example.com/medical-report.pdf",
       isLoading: false,
     });
-
+  
+    // Renderizar o componente
     render(<DependentData />);
-
-    // Check that the actual data is displayed
+  
+    // Validar que os dados principais estão presentes
     expect(screen.getByText("Nome do usuário")).toBeInTheDocument();
     expect(screen.getByText("João da Silva")).toBeInTheDocument();
     expect(
@@ -62,15 +86,13 @@ describe("DependentData Page", () => {
     expect(
       screen.getByText("Input Component - Label: Gênero, Value: Masculino")
     ).toBeInTheDocument();
-
-    // PhoneField should be rendered
+  
     expect(
-      screen.getByText(
-        "PhoneField Component - Label: Número do Responsável, Value: 123456789"
-      )
+      screen.getByText(/Input Component - Label: Número do Responsável.*Value: 123456789/i)
     ).toBeInTheDocument();
-
-    // Medical report link should be rendered
+    
+  
+    // Validar o link do relatório médico
     const downloadLink = screen.getByText(
       "Clique para baixar laudo médico do usuário."
     );
@@ -80,8 +102,8 @@ describe("DependentData Page", () => {
       "http://example.com/medical-report.pdf"
     );
   });
-
-  it("should render the PhoneField component if emergPhone is provided and isLoading is false", () => {
+  
+  it("should render the Input Phone component if emergPhone is provided and isLoading is false", () => {
     useDependentDataLogic.mockReturnValue({
       dependentName: "João da Silva",
       dependentAge: "25",
@@ -95,10 +117,9 @@ describe("DependentData Page", () => {
     render(<DependentData />);
 
     expect(
-      screen.getByText(
-        "PhoneField Component - Label: Número do Responsável, Value: 123456789"
-      )
+      screen.getByText(/Input Component - Label: Número do Responsável, Value: 123456789/i)
     ).toBeInTheDocument();
+    
   });
 
   it("should render the download link if dependentMedicalReport is provided and isLoading is false", () => {
@@ -123,4 +144,4 @@ describe("DependentData Page", () => {
       "http://example.com/medical-report.pdf"
     );
   });
-})
+});

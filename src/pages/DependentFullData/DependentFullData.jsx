@@ -85,7 +85,7 @@ const DependentFullData = () => {
         />
 
         {/* Botão para enviar os dados */}
-        <Button onClick={handleEnviarDados} disabled={enviandoDados} fontSize={"button"}>
+        <Button style={styles.buttonStyle} onClick={handleEnviarDados} disabled={enviandoDados} fontSize={"button"}>
           {enviandoDados ? "Enviando..." : "Enviar"}
         </Button>
       </div>
