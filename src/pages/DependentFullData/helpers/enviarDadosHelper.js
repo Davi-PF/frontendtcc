@@ -24,7 +24,6 @@ export const enviarDadosHelper = async ({
         `${API_SMS_SCANHISTORY}`,
         dadosParaEnviar
       );
-      console.log("response: " + JSON.stringify(response));
       localStorage.setItem("scanPhone", response.data.scanPhone);
       toast.success("Dados enviados com sucesso!");
       navigate("/smsHandler");
@@ -34,20 +33,24 @@ export const enviarDadosHelper = async ({
     }
   };
 
-  // Tenta obter a localização do navegador
-  navigator.geolocation.getCurrentPosition(
-    async (position) => {
-      const { latitude, longitude } = position.coords;
-      await enviarComLocalizacao(latitude, longitude);
-    },
-    async () => {
-      // Caso não consiga obter localização, usa latitude e longitude padrão
-      await enviarComLocalizacao(0, 0);
-    },
-    {
-      timeout: 10000,
-      maximumAge: 60000,
-      enableHighAccuracy: true,
-    }
+  // Return a promise that resolves when geolocation and data sending are complete
+  return new Promise((resolve) => {
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        await enviarComLocalizacao(latitude, longitude);
+        resolve(); // Resolve after successful operation
+      },
+      async () => {
+        // Use default location if geolocation fails
+        await enviarComLocalizacao(0, 0);
+        resolve(); // Resolve even if geolocation fails
+      },
+      {
+        timeout: 10000,
+        maximumAge: 60000,
+        enableHighAccuracy: true,
+      }
   );
-};
+});
+}

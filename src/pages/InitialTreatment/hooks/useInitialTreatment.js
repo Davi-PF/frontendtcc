@@ -50,6 +50,7 @@ const useInitialTreatment = () => {
         setItem("userPhone", phone);
         setItem("authToken", token);
         toast.success("Obrigado por ajudar!");
+        console.log("Chamando navegação"); // 👈 Adicionado para verificar
         navigate("/loadingScreen", { replace: true });
       } else {
         toast.error("Erro ao obter o token. Tente novamente.", {
@@ -75,6 +76,14 @@ const sendNotification = async (encryptedData) => {
   if (!decodedEncryptedData) {
     toast.error("Nenhum dado encontrado. Por favor, tente novamente.", {
       toastId: "missing-data",
+    });
+    return;
+  }
+
+  // Verifica se o formato esperado é válido
+  if (!decodedEncryptedData.includes("&") || !decodedEncryptedData.includes("=")) {
+    toast.error("Dados criptografados inválidos.", {
+      toastId: "invalid-data",
     });
     return;
   }

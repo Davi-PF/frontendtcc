@@ -4,19 +4,34 @@ import PhoneField from "./PhoneField";
 import { COLORS } from "../../constants/styles";
 import { validatePhone } from "../../utils/phoneFieldUtils";
 
-jest.mock("./MaskedPhoneField", () => ({ value, onChange, readOnly }) => (
-  <input
-    data-testid="masked-input"
-    value={value}
-    onChange={onChange}
-    readOnly={readOnly}
-  />
-));
+// Mock do componente MaskedPhoneField
+jest.mock("./MaskedPhoneField", () => {
+  const PropTypes = require("prop-types");
+
+  // Definir o componente mockado
+  const MockMaskedPhoneField = ({ value, onChange, readOnly }) => (
+    <input
+      data-testid="masked-input"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      readOnly={readOnly}
+    />
+  );
+
+  // Definir PropTypes para o componente mockado
+  MockMaskedPhoneField.propTypes = {
+    value: PropTypes.string,
+    onChange: PropTypes.func,
+    readOnly: PropTypes.bool,
+  };
+
+  return MockMaskedPhoneField;
+});
 
 jest.mock("../../utils/phoneFieldUtils", () => ({
   validatePhone: jest.fn(),
-  mapShadow: jest.fn((shadow) => shadow), // Return the same value for simplicity
-  mapFontSize: jest.fn((fontSize) => fontSize), // Return the same value for simplicity
+  mapShadow: jest.fn((shadow) => shadow),
+  mapFontSize: jest.fn((fontSize) => fontSize),
 }));
 
 describe("PhoneField Component", () => {
@@ -65,11 +80,11 @@ describe("PhoneField Component", () => {
   });
 
   it("shows invalid styles when phone number is not valid", () => {
-    validatePhone.mockReturnValue(false); // Simulate validation returning false
+    validatePhone.mockReturnValue(false);
     const { container } = render(<PhoneField label="Invalid Phone" value="123" />);
     
     const fieldset = container.querySelector("fieldset");
-    expect(validatePhone).toHaveBeenCalledWith("123"); // Verify that validation was called
-    expect(fieldset).toHaveStyle(`border: 1px solid ${COLORS.BLUE_MAIN}`); // Verify style for invalid number
+    expect(validatePhone).toHaveBeenCalledWith("123");
+    expect(fieldset).toHaveStyle(`border: 1px solid ${COLORS.BLUE_MAIN}`);
   });
 });

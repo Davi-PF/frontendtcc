@@ -1,5 +1,6 @@
 import React from "react";
 import { render, act } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom"; // Importando o MemoryRouter
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useDependentDataLogic } from "./useDependentDataLogic";
@@ -82,7 +83,11 @@ describe("useDependentDataLogic hook", () => {
       },
     });
 
-    const { getByText } = render(<TestComponent />);
+    const { getByText } = render(
+      <MemoryRouter>
+        <TestComponent />
+      </MemoryRouter> // Envolvendo o componente com MemoryRouter
+    );
 
     await act(async () => {
       // Wait for useEffect to run
@@ -111,34 +116,38 @@ describe("useDependentDataLogic hook", () => {
   });
 
   it("should handle missing encrypted data", async () => {
-    getItem.mockImplementation((key) => {
-      if (key === "encryptedCpfDep") return null;
-      if (key === "encryptedEmergPhone") return null;
-      return null;
-    });
+    getItem.mockReturnValue(null);
 
-    render(<TestComponent />);
+    render(
+      <MemoryRouter>
+        <TestComponent />
+      </MemoryRouter> // Envolvendo o componente com MemoryRouter
+    );
 
     await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
     expect(toast.error).toHaveBeenCalledWith(
-      "Dados não encontrados, escaneie novamente a pulseira."
+      "Dados não encontrados, escaneie novamente a pulseira.", {"toastId": "data-not-found"}  
     );
   });
 
   it("should handle decryption errors", async () => {
     decryptInfo.mockRejectedValueOnce(new Error("Decryption error"));
 
-    render(<TestComponent />);
+    render(
+      <MemoryRouter>
+        <TestComponent />
+      </MemoryRouter> // Envolvendo o componente com MemoryRouter
+    );
 
     await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
     expect(toast.error).toHaveBeenCalledWith(
-      "Erro ao carregar dados. Tente novamente."
+      "Erro ao carregar dados. Tente novamente.", {"toastId": "failed-to-fetch-dependent-data"}
     );
   });
 });

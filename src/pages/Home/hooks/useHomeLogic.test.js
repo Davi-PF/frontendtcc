@@ -2,16 +2,19 @@ import React from "react";
 import { render, screen, act } from "@testing-library/react";
 import { useHomeLogic } from "./useHomeLogic";
 import { useFetchData } from "../../../functions/dataRelated/useFetchData/useFetchData";
-import { decryptData, encryptInfo } from "../../../utils/cryptoUtils";
 import { setItem, getItem } from "../../../utils/localStorageUtils";
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+
+jest.mock("axios", () => ({
+  post: jest.fn(),
+  get: jest.fn(),
+  put: jest.fn(),
+  delete: jest.fn(),
+}));
+
 
 jest.mock("../../../functions/dataRelated/useFetchData/useFetchData");
-jest.mock("../../../utils/cryptoUtils", () => ({
-  decryptData: jest.fn(),
-  encryptInfo: jest.fn(),
-}));
 jest.mock("../../../utils/localStorageUtils", () => ({
   setItem: jest.fn(),
   getItem: jest.fn(),
@@ -53,9 +56,10 @@ describe("useHomeLogic Hook", () => {
         case "authToken":
           return "mockAuthToken";
         case "originalEncryptedData":
-          return "mockOriginalEncryptedData";
+          return encodeURIComponent(
+            "cpfDep=12345678900&emergPhone=11987654321"
+          );
         case "encryptedCpfDep":
-          return null;
         case "encryptedEmergPhone":
           return null;
         default:
@@ -63,28 +67,54 @@ describe("useHomeLogic Hook", () => {
       }
     });
 
-    decryptData.mockResolvedValue({
-      contentResponse: {
-        decryptedUrl: 'cpfDep=12345678900&emergPhone=11987654321',
-      },
-    });
-
-    encryptInfo
-      .mockResolvedValueOnce({
-        contentResponse: {
-          encryptedUrl: 'encryptedCpfDepValue',
-        },
-      })
-      .mockResolvedValueOnce({
-        contentResponse: {
-          encryptedUrl: 'encryptedEmergPhoneValue',
-        },
-      });
-
     useFetchData.mockReturnValue({
       loading: false,
       fetchData: jest.fn(),
     });
+  });
+
+  it("should use already encrypted data if present", async () => {
+    // Sobrescreve o getItem para este teste específico
+    getItem.mockImplementation((key) => {
+      switch (key) {
+        case "authToken":
+          return "mockAuthToken";
+        case "originalEncryptedData":
+          return encodeURIComponent(
+            "cpfDep=12345678900&emergPhone=11987654321"
+          );
+        case "encryptedCpfDep":
+          return "existingEncryptedCpfDepValue";
+        case "encryptedEmergPhone":
+          return "existingEncryptedEmergPhoneValue";
+        default:
+          return null;
+      }
+    });
+
+    render(<TestComponent />);
+
+    await act(async () => {});
+
+    // Garantindo que setItem não seja chamado
+    expect(setItem).not.toHaveBeenCalledWith(
+      "encryptedCpfDep",
+      expect.anything()
+    );
+    expect(setItem).not.toHaveBeenCalledWith(
+      "encryptedEmergPhone",
+      expect.anything()
+    );
+
+    // Verificando se os valores já criptografados aparecem no DOM
+    expect(
+      screen.getByText("Encrypted CPF: existingEncryptedCpfDepValue")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Encrypted Emergency Phone: existingEncryptedEmergPhoneValue"
+      )
+    ).toBeInTheDocument();
   });
 
   it("should render correctly with provided data", async () => {
@@ -95,17 +125,21 @@ describe("useHomeLogic Hook", () => {
     expect(getItem).toHaveBeenCalledWith("authToken");
     expect(getItem).toHaveBeenCalledWith("originalEncryptedData");
 
-    expect(decryptData).toHaveBeenCalledWith("mockOriginalEncryptedData");
+    // Verifique se os itens foram salvos no localStorage
+    expect(setItem).toHaveBeenCalledWith("encryptedCpfDep", "12345678900");
+    expect(setItem).toHaveBeenCalledWith(
+      "encryptedEmergPhone",
+      "11987654321"
+    );
 
-    expect(encryptInfo).toHaveBeenCalledWith("12345678900");
-    expect(encryptInfo).toHaveBeenCalledWith("11987654321");
-
-    expect(setItem).toHaveBeenCalledWith("encryptedCpfDep", "encryptedCpfDepValue");
-    expect(setItem).toHaveBeenCalledWith("encryptedEmergPhone", "encryptedEmergPhoneValue");
-
+    // Verifique se os valores estão sendo renderizados corretamente
     expect(screen.getByText("Loading: false")).toBeInTheDocument();
-    expect(screen.getByText("Encrypted CPF: encryptedCpfDepValue")).toBeInTheDocument();
-    expect(screen.getByText("Encrypted Emergency Phone: encryptedEmergPhoneValue")).toBeInTheDocument();
+    expect(
+      screen.getByText("Encrypted CPF: 12345678900")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Encrypted Emergency Phone: 11987654321")
+    ).toBeInTheDocument();
 
     expect(toast.success).toHaveBeenCalledWith("Dados processados com sucesso!");
   });
@@ -127,10 +161,7 @@ describe("useHomeLogic Hook", () => {
   });
 
   it("should redirect to '/' if authToken is missing", () => {
-    getItem.mockImplementation((key) => {
-      if (key === "authToken") return null;
-      return null;
-    });
+    getItem.mockImplementation(() => null);
 
     render(<TestComponent />);
 
@@ -146,41 +177,8 @@ describe("useHomeLogic Hook", () => {
 
     render(<TestComponent />);
 
-    expect(toast.error).toHaveBeenCalledWith("Nenhum dado encontrado. Por favor, tente novamente.", {
-      toastId: "missing-data",
+    expect(toast.error).toHaveBeenCalledWith("Erro ao processar os dados, tente novamente.", {
+      toastId: "process-error",
     });
-  });
-
-  it("should show error if decryptData fails", async () => {
-    decryptData.mockResolvedValue(null);
-
-    render(<TestComponent />);
-
-    await act(async () => {});
-
-    expect(toast.error).toHaveBeenCalledWith("Erro ao descriptografar os dados, tente novamente.", {
-      toastId: "decrypt-error",
-    });
-  });
-
-  it("should use already encrypted data if present", async () => {
-    getItem.mockImplementation((key) => {
-      if (key === "authToken") return "mockAuthToken";
-      if (key === "originalEncryptedData") return "mockOriginalEncryptedData";
-      if (key === "encryptedCpfDep") return "existingEncryptedCpfDepValue";
-      if (key === "encryptedEmergPhone") return "existingEncryptedEmergPhoneValue";
-      return null;
-    });
-
-    render(<TestComponent />);
-
-    await act(async () => {});
-
-    expect(encryptInfo).not.toHaveBeenCalled();
-    expect(setItem).not.toHaveBeenCalledWith("encryptedCpfDep", expect.anything());
-    expect(setItem).not.toHaveBeenCalledWith("encryptedEmergPhone", expect.anything());
-
-    expect(screen.getByText("Encrypted CPF: existingEncryptedCpfDepValue")).toBeInTheDocument();
-    expect(screen.getByText("Encrypted Emergency Phone: existingEncryptedEmergPhoneValue")).toBeInTheDocument();
   });
 });

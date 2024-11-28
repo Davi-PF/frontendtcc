@@ -13,11 +13,21 @@ jest.mock("axios", () => ({
 
 jest.mock("./hooks/useEmergencyPhoneLogic"); // Mock the custom hook
 
-jest.mock("../../components/PhoneField/PhoneField", () => (props) => (
-  <div>
-    PhoneField Component - Value: {props.value}
-  </div>
-));
+jest.mock("../../components/PhoneField/PhoneField", () => {
+  const PropTypes = require("prop-types");
+  const MockPhoneField = (props) => (
+    <div>
+      PhoneField Component - Value: {props.value}
+    </div>
+  );
+
+  // Definir PropTypes para o componente mockado PhoneField
+  MockPhoneField.propTypes = {
+    value: PropTypes.string.isRequired, // Ajuste o tipo conforme necessário
+  };
+
+  return MockPhoneField;
+});
 
 jest.mock("../../components/LoadingScreen/LoadingScreen", () => () => <div>Loading...</div>);
 
@@ -106,7 +116,7 @@ describe("EmergencyPhone Page", () => {
     const img = screen.getByAltText("Chamada de Emergência");
     expect(img).toBeInTheDocument();
     // Optionally, check the src attribute
-    expect(img).toHaveAttribute("src", "../../img/EmergencyCall.png");
+    expect(img).toHaveAttribute("src", "EmergencyCall.png");
   });
 
   it("should render the footer with more info link", () => {

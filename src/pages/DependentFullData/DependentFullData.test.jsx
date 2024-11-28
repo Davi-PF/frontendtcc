@@ -15,14 +15,26 @@ jest.mock("axios", () => ({
 jest.mock("./hooks/useDependentFullDataLogic");
 jest.mock("./helpers/enviarDadosHelper", () => jest.fn());
 
-jest.mock("../../components/Input/Input", () => (props) => (
-  <div>
-    Input Component - Label: {props.fieldLabel}, Value: {props.value}
-    <button onClick={() => props.onChange({ target: { value: "mockValue" } })}>
-      Simular Mudança
-    </button>
-  </div>
-));
+jest.mock("../../components/Input/Input", () => {
+  const PropTypes = require("prop-types");
+  const MockInput = (props) => (
+    <div>
+      Input Component - Label: {props.fieldLabel}, Value: {props.value}
+      <button onClick={() => props.onChange({ target: { value: "mockValue" } })}>
+        Simular Mudança
+      </button>
+    </div>
+  );
+
+  // Definir PropTypes para o componente mockado Input
+  MockInput.propTypes = {
+    fieldLabel: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
+    onChange: PropTypes.func.isRequired,
+  };
+
+  return MockInput;
+});
 jest.mock("../../components/Button/Button", () => (props) => (
   <button onClick={props.onClick} disabled={props.disabled}>
     {props.children}
