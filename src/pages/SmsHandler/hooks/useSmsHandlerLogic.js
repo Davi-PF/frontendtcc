@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
 import {
@@ -9,6 +9,8 @@ import getFunctions from "../../../functions/generalFunctions/getFunctions";
 import { getItem } from "../../../utils/localStorageUtils";
 import { decryptInfo } from "../../../utils/cryptoUtils";
 
+
+
 export const useSmsHandlerLogic = (navigate) => {
   const [smsValue, setSmsValue] = useState("");
   const [smsData, setSmsData] = useState({
@@ -16,6 +18,8 @@ export const useSmsHandlerLogic = (navigate) => {
     cpfDep: "",
     phoneUser: "",
   });
+
+  const fillDataCalledRef = useRef(false);
 
   const handleResend = useCallback(
     async (data = smsData) => {
@@ -48,6 +52,9 @@ export const useSmsHandlerLogic = (navigate) => {
   );
 
   const fillData = useCallback(async () => {
+    if (fillDataCalledRef.current) return; // Exit if already called
+    fillDataCalledRef.current = true; // Mark as called
+
     try {
       const encryptedCpfDep = getItem("encryptedCpfDep");
       let phoneUser = getItem("userPhone");
@@ -101,7 +108,7 @@ export const useSmsHandlerLogic = (navigate) => {
   // Include fillData in the dependency array
   useEffect(() => {
     fillData();
-  }, []);
+  }, [fillData]);
 
   return {
     smsValue,

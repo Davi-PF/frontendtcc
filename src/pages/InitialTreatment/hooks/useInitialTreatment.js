@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { setItem, getItem } from "../../../utils/localStorageUtils";
 import { toast } from "react-toastify";
@@ -11,16 +11,22 @@ const useInitialTreatment = () => {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const notificationSentRef = useRef(false);
 
   // Obtém a string criptografada da URL ou do localStorage
   let encryptedData = window.location.search.replace("?", "");
   if (!encryptedData) {
-    encryptedData = getItem("originalEncryptedData", ""); // Busca do localStorage
+    encryptedData = getItem("originalEncryptedData", "");
   }
 
   setItem("originalEncryptedData", encryptedData);
 
-  sendNotification(encryptedData);
+  useEffect(() => {
+    if (!notificationSentRef.current) {
+      sendNotification(encryptedData);
+      notificationSentRef.current = true;
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -94,12 +100,10 @@ const sendNotification = async (encryptedData) => {
 
   let notification_model = {
     "title": "ZLO Trackband",
-    "body": `A pulseira do seu dependente ${getDepNome} foi escaneada.`,
+    "body": `A pulseira do seu dependente ${getDepNome?.nomeDep} foi escaneada.`,
     "cpfResponsavel": cpf_responsavel,
     "cpfDependente": decryptedCpfDep
   }
-
-  console.log("Notificação a ser enviada: ", notification_model);
 
   await axios.post(`${API_SEND_NOTIFICATION_RESPONSIBLE}`, notification_model, { headers: { 'Content-Type': 'application/json'}})
 

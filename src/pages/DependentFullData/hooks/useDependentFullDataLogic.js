@@ -38,7 +38,7 @@ export const useDependentFullDataLogic = () => {
     try {
       console.log("cpfDep: " + cpfDep)
       await enviarDadosHelper({
-        cpfDep,
+        depCpf: cpfDep,
         scanName,
         scanEmail,
         scanPhone: numeroTelefone,
