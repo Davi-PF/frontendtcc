@@ -26,7 +26,7 @@ const useInitialTreatment = () => {
       sendNotification(encryptedData);
       notificationSentRef.current = true;
     }
-  }, []);
+  }, [encryptedData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

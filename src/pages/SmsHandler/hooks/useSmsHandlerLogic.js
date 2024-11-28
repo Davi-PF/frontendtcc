@@ -48,7 +48,7 @@ export const useSmsHandlerLogic = (navigate) => {
         });
       }
     },
-    []
+    [smsData]
   );
 
   const fillData = useCallback(async () => {
@@ -85,7 +85,7 @@ export const useSmsHandlerLogic = (navigate) => {
         toastId: "failed-to-load-data",
       });
     }
-  }, []);
+  }, [handleResend]);
 
   const smsVerifyFunction = async (smsCode) => {
     try {
