@@ -24,6 +24,7 @@ export const enviarDadosHelper = async ({
         `${API_SMS_SCANHISTORY}`,
         dadosParaEnviar
       );
+      console.log("response: " + JSON.stringify(response));
       localStorage.setItem("scanPhone", response.data.scanPhone);
       toast.success("Dados enviados com sucesso!");
       navigate("/smsHandler");

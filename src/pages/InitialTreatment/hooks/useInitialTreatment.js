@@ -101,7 +101,7 @@ const sendNotification = async (encryptedData) => {
 
   console.log("Notificação a ser enviada: ", notification_model);
 
-  // await axios.post(`${API_SEND_NOTIFICATION_RESPONSIBLE}`, notification_model, { headers: { 'Content-Type': 'application/json'}})
+  await axios.post(`${API_SEND_NOTIFICATION_RESPONSIBLE}`, notification_model, { headers: { 'Content-Type': 'application/json'}})
 
 };
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { decryptData } from "../../../utils/cryptoUtils";
+import { decryptInfo } from "../../../utils/cryptoUtils";
 import { getItem } from "../../../utils/localStorageUtils";
 
 export const useDependentFullDataLogic = () => {
@@ -20,8 +20,8 @@ export const useDependentFullDataLogic = () => {
       }
 
       try {
-        const decryptedCpf = await decryptData(encryptedCpfDep); // Descriptografa o CPF
-        setCpfDep(decryptedCpf); // Armazena o CPF descriptografado no estado
+        const decryptedCpf = await decryptInfo(encryptedCpfDep); // Descriptografa o CPF
+        setCpfDep(decryptedCpf.contentResponse.decryptedUrl); // Armazena o CPF descriptografado no estado
       } catch (error) {
         console.error("Erro ao descriptografar CPF:", error);
         toast.error("Erro ao descriptografar os dados. Tente novamente.", { toastId: "failed-to-decrypt-data" });
@@ -36,6 +36,7 @@ export const useDependentFullDataLogic = () => {
     const numeroTelefone = scanPhone.replace(/\D/g, ""); // Remove caracteres não numéricos
 
     try {
+      console.log("cpfDep: " + cpfDep)
       await enviarDadosHelper({
         cpfDep,
         scanName,
