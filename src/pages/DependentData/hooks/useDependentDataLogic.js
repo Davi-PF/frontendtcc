@@ -55,7 +55,7 @@ export const useDependentDataLogic = () => {
     };
 
     loadData();
-  }, []);
+  }, [fetchDependentData]);
 
   const fetchDependentData = async (cpfDep) => {
     try {
