@@ -1,12 +1,15 @@
+// src/components/Header/Header.js
+
 import React from 'react';
-import PropTypes from 'prop-types';
 import { COLORS } from '../../constants/styles';
-import { Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft, faBagShopping } from '@fortawesome/free-solid-svg-icons';
-import zloLogo from "../../images/ZloLogoIcon.png"
+import zloLogo from "../../images/ZloLogoIcon.png";
 
-function Header({ homeStyle }) {
+function Header() {
+    const navigate = useNavigate();
+    const location = useLocation();
 
     const backgroundStyle = {
         backgroundColor: COLORS.BLUE_MAIN,
@@ -23,7 +26,8 @@ function Header({ homeStyle }) {
 
     const iconHeaderStyle = {
         color: COLORS.WHITE,
-        fontSize: '32px'
+        fontSize: '32px',
+        cursor: 'pointer'
     };
 
     const headerStyle = {
@@ -33,32 +37,44 @@ function Header({ homeStyle }) {
         alignItems: 'center', 
     };
 
+    // Define as rotas onde o botão de voltar NÃO deve ser exibido
+    const hideBackButtonPaths = ["/home", "/loadingScreen"];
+
+    // Determina se o botão de voltar deve ser exibido
+    const showBackButton = !hideBackButtonPaths.includes(location.pathname);
+
+    const handleBack = () => {
+        navigate(-1);
+    };
+
     return (
         <div style={backgroundStyle}>
-            {homeStyle &&
-                <img src={`${zloLogo}`} style={imgStyleLogo} alt="ZloLogo" />
-            }
-            {!homeStyle &&
+            {showBackButton ? (
                 <div style={headerStyle}>
-                    <Link to="/emergencyPhone">
+                    {/* Botão de voltar acessível */}
+                    <button 
+                        onClick={handleBack} 
+                        style={{ background: 'none', border: 'none', padding: 0 }}
+                        aria-label="Voltar"
+                    >
                         <FontAwesomeIcon icon={faAngleLeft} style={iconHeaderStyle} />
-                    </Link>
+                    </button>
                     <img
-                        src={`${zloLogo}`}
+                        src={zloLogo}
                         style={imgStyleLogo}
                         alt="ZloLogo"
                     />
+                    {/* Ícone de carrinho (ou qualquer outra ação) */}
                     <Link to="/emergencyPhone">
                         <FontAwesomeIcon icon={faBagShopping} style={iconHeaderStyle} />
                     </Link>
                 </div>
-            }
+            ) : (
+                // Exibe apenas o logo quando o botão de voltar está oculto
+                <img src={zloLogo} style={imgStyleLogo} alt="ZloLogo" />
+            )}
         </div>
     );
 }
-
-Header.propTypes = {
-    homeStyle: PropTypes.bool.isRequired,
-};
 
 export default Header;

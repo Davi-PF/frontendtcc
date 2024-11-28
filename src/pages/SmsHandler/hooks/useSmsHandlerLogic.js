@@ -32,7 +32,7 @@ export const useSmsHandlerLogic = (navigate) => {
 
         if (response.status === 200 || response.status === 201) {
           toast.success("SMS enviado com sucesso!", {
-            autoClose: 3000,
+            autoClose: 2000,
             toastId: "smsHandler-success",
           });
         } else {
@@ -100,7 +100,7 @@ export const useSmsHandlerLogic = (navigate) => {
       console.error("Erro ao verificar código:", error);
       toast.error("Valor inválido. Tente novamente ou reenvie o código SMS.", {
         toastId: "invalid-code",
-        autoClose: 3000,
+        autoClose: 2000,
       });
     }
   };

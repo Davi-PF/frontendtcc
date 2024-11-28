@@ -50,7 +50,7 @@ const useInitialTreatment = () => {
         setItem("userPhone", phone);
         setItem("authToken", token);
         toast.success("Obrigado por ajudar!");
-        navigate("/loadingScreen");
+        navigate("/loadingScreen", { replace: true });
       } else {
         toast.error("Erro ao obter o token. Tente novamente.", {
           toastId: "failed-to-get-token",

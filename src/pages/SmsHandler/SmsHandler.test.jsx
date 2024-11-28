@@ -82,7 +82,7 @@ describe("SmsHandler Page", () => {
       "O código deve ter exatamente 7 ou 8 números. Verifique e tente novamente.",
       {
         position: toast.POSITION.TOP_CENTER, // Garantido pelo mock atualizado
-        autoClose: 3000,
+        autoClose: 2000,
       }
     );
   

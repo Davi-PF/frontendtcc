@@ -13,47 +13,48 @@ export const useDependentDataLogic = () => {
   const [dependentGender, setDependentGender] = useState("");
   const [dependentMedicalReport, setDependentMedicalReport] = useState("");
   const [emergPhone, setEmergPhone] = useState("");
-  const [isLoading, setIsLoading] = useState(true); // Estado para controlar o carregamento
+  const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
 
   const authToken = getItem("authToken");
 
-  const fetchDependentData = async (cpfDep) => {
-    try {
-      if (!authToken) {
-        toast.error("Sessão expirada, faça login novamente.", {
-          toastId: "expired-session",
-        });
-        navigate("/");
-      }
-
-      const response = await axios.get(
-        `${API_DEPENDENT_FOUND_BY_ID}${cpfDep}`,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
-
-      const { nomeDep, idadeDep, tipoSanguineo, generoDep, laudo } =
-        response.data.contentResponse;
-
-      setDependentName(nomeDep);
-      setDependentAge(idadeDep);
-      setDependentBloodType(tipoSanguineo);
-      setDependentGender(generoDep);
-      setDependentMedicalReport(laudo);
-    } catch (error) {
-      console.error("Erro ao buscar dados do dependente:", error);
-      toast.error("Erro ao realizar requisição.", {
-        toastId: "fetch-error",
-      });
-    }
-  };
-
   useEffect(() => {
+    const fetchDependentData = async (cpfDep) => {
+      try {
+        if (!authToken) {
+          toast.error("Sessão expirada, faça login novamente.", {
+            toastId: "expired-session",
+          });
+          navigate("/");
+          return;
+        }
+
+        const response = await axios.get(
+          `${API_DEPENDENT_FOUND_BY_ID}${cpfDep}`,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+
+        const { nomeDep, idadeDep, tipoSanguineo, generoDep, laudo } =
+          response.data.contentResponse;
+
+        setDependentName(nomeDep);
+        setDependentAge(idadeDep);
+        setDependentBloodType(tipoSanguineo);
+        setDependentGender(generoDep);
+        setDependentMedicalReport(laudo);
+      } catch (error) {
+        console.error("Erro ao buscar dados do dependente:", error);
+        toast.error("Erro ao realizar requisição.", {
+          toastId: "fetch-error",
+        });
+      }
+    };
+
     const loadData = async () => {
       try {
         const encryptedCpfDep = getItem("encryptedCpfDep");
@@ -81,7 +82,7 @@ export const useDependentDataLogic = () => {
         await fetchDependentData(decryptedCpf.contentResponse.decryptedUrl);
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
-        toast.error("Erro ao carregar dados. Tente novamente.");
+        toast.error("Erro ao carregar dados. Tente novamente.", {toastId: "failed-to-fetch-dependent-data"});
       } finally {
         await new Promise((resolve) => setTimeout(resolve, 2000));
         setIsLoading(false);
@@ -89,7 +90,7 @@ export const useDependentDataLogic = () => {
     };
 
     loadData();
-  }, [fetchDependentData]);
+  }, [authToken, navigate]);
 
   return {
     dependentName,
@@ -98,6 +99,6 @@ export const useDependentDataLogic = () => {
     dependentGender,
     emergPhone,
     dependentMedicalReport,
-    isLoading, // Expondo o estado de carregamento
+    isLoading,
   };
 };

@@ -35,7 +35,7 @@ const SmsHandler = () => {
                 "O código deve ter exatamente 6. Verifique e tente novamente.",
                 {
                   toastId: "sms-missing-pattern",
-                  autoClose: 3000,
+                  autoClose: 2000,
                 }
               );
               return;
