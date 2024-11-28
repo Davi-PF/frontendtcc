@@ -19,6 +19,40 @@ export const useDependentDataLogic = () => {
 
   const authToken = getItem("authToken");
 
+  const fetchDependentData = async (cpfDep) => {
+    try {
+      if (!authToken) {
+        toast.error("Sessão expirada, faça login novamente.", {
+          toastId: "expired-session",
+        });
+        navigate("/");
+      }
+
+      const response = await axios.get(
+        `${API_DEPENDENT_FOUND_BY_ID}${cpfDep}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+
+      const { nomeDep, idadeDep, tipoSanguineo, generoDep, laudo } =
+        response.data.contentResponse;
+
+      setDependentName(nomeDep);
+      setDependentAge(idadeDep);
+      setDependentBloodType(tipoSanguineo);
+      setDependentGender(generoDep);
+      setDependentMedicalReport(laudo);
+    } catch (error) {
+      console.error("Erro ao buscar dados do dependente:", error);
+      toast.error("Erro ao realizar requisição.", {
+        toastId: "fetch-error",
+      });
+    }
+  };
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -56,40 +90,6 @@ export const useDependentDataLogic = () => {
 
     loadData();
   }, [fetchDependentData]);
-
-  const fetchDependentData = async (cpfDep) => {
-    try {
-      if (!authToken) {
-        toast.error("Sessão expirada, faça login novamente.", {
-          toastId: "expired-session",
-        });
-        navigate("/");
-      }
-
-      const response = await axios.get(
-        `${API_DEPENDENT_FOUND_BY_ID}${cpfDep}`,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
-
-      const { nomeDep, idadeDep, tipoSanguineo, generoDep, laudo } =
-        response.data.contentResponse;
-
-      setDependentName(nomeDep);
-      setDependentAge(idadeDep);
-      setDependentBloodType(tipoSanguineo);
-      setDependentGender(generoDep);
-      setDependentMedicalReport(laudo);
-    } catch (error) {
-      console.error("Erro ao buscar dados do dependente:", error);
-      toast.error("Erro ao realizar requisição.", {
-        toastId: "fetch-error",
-      });
-    }
-  };
 
   return {
     dependentName,
