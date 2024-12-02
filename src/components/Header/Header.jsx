@@ -65,7 +65,7 @@ function Header() {
                         alt="ZloLogo"
                     />
                     {/* Ícone de carrinho (ou qualquer outra ação) */}
-                    <Link to="/emergencyPhone">
+                    <Link to="http://zlo-shop.s3-website-us-east-1.amazonaws.com/home">
                         <FontAwesomeIcon icon={faBagShopping} style={iconHeaderStyle} />
                     </Link>
                 </div>
