@@ -1,4 +1,4 @@
-const API_URL = "http://zlo-main-app.us-east-1.elasticbeanstalk.com/"
+const API_URL = "http://zlo-main-app.us-east-1.elasticbeanstalk.com"
 // const API_URL = "http://localhost:5000/"
 export const API_ENCRYPT = API_URL + "/api/url/encrypt"
 export const API_DECRYPT = API_URL + "/api/url/decrypt"
