@@ -105,7 +105,7 @@ const sendNotification = async (encryptedData) => {
 
   let getDepNome = await axios.get(`${API_FIND_NOME_DEP}${decryptedCpfDep}`, { headers: { 'Content-Type': 'application/json' } })
 
-  getDepNome = getDepNome.data.contentResponse.nomeDep
+  getDepNome = getDepNome.data.contentResponse
 
   let notification_model = {
     "title": "ZLO Trackband",

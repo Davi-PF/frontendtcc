@@ -23,8 +23,18 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --watchAll=false --collectCoverage --coverageReporters=text --coverageReporters=lcov",
+    "test": "react-scripts test --watchAll=false --collectCoverage --coverageReporters=text --coverageReporters=lcov --testPathIgnorePatterns=index.jsx,reportWebVitals.js",
     "eject": "react-scripts eject"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx}",
+      "!src/index.jsx",
+      "!src/reportWebVitals.js",
+      "!src/**/*.test.{js,jsx}",
+      "!src/constants/envVariables.js",
+      "!src/constants/toastConfig.js"
+    ]
   },
   "eslintConfig": {
     "extends": [
