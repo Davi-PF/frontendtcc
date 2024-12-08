@@ -92,7 +92,7 @@ export const useSmsHandlerLogic = (navigate) => {
       const response = await axios.get(
         `${API_SMSHANDLER_VERIFY_CODE}?smsCode=${smsCode}&returnDate=${smsData.sendDate}&cpfDep=${smsData.cpfDep}`
       );
-      if (response) {
+      if (response.data.isOk) {
         toast.success("Código verificado com sucesso!", { toastId: "verify-success"});
         navigate("/dependentData");
       }
