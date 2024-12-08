@@ -20,11 +20,10 @@ export const enviarDadosHelper = async ({
     };
 
     try {
-      const response = await axios.post(
+      await axios.post(
         `${API_SMS_SCANHISTORY}`,
         dadosParaEnviar
       );
-      localStorage.setItem("scanPhone", response.data.scanPhone);
       toast.success("Dados enviados com sucesso!");
       navigate("/smsHandler");
     } catch (error) {

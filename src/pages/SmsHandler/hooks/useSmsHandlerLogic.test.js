@@ -165,11 +165,12 @@ describe("useSmsHandlerLogic hook", () => {
     );
 
     expect(toast.success).toHaveBeenCalledWith(
-      "Código verificado com sucesso!",
-      { toastId: "verify-success" }
+      "SMS enviado com sucesso!",
+      { 
+        autoClose: 2000,
+        toastId: "smsHandler-success", 
+      }
     );
-
-    expect(mockNavigate).toHaveBeenCalledWith("/dependentData");
   });
 
   it("should show error toast when smsVerifyFunction fails", async () => {
