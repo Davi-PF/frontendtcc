@@ -1,1 +1,14 @@
-# frontendtcc
+# ZLO Third Party Access (TPA)
+[Documentação Técnica RFC do projeto](https://docs.google.com/document/d/11Tobzwm5-JkiURC2DJRTKl8LARjj46NG/edit?usp=sharing&ouid=113156827946997430842&rtpof=true&sd=true)
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Davi-PF_frontendtcc&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Davi-PF_frontendtcc)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Davi-PF_frontendtcc&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Davi-PF_frontendtcc)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Davi-PF_frontendtcc&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Davi-PF_frontendtcc)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Davi-PF_frontendtcc&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Davi-PF_frontendtcc)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=Davi-PF_frontendtcc&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=Davi-PF_frontendtcc)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=Davi-PF_frontendtcc&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=Davi-PF_frontendtcc)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Davi-PF_frontendtcc&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=Davi-PF_frontendtcc)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Davi-PF_frontendtcc&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=Davi-PF_frontendtcc)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=Davi-PF_frontendtcc&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=Davi-PF_frontendtcc)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Davi-PF_frontendtcc&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=Davi-PF_frontendtcc)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Davi-PF_frontendtcc&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=Davi-PF_frontendtcc)
