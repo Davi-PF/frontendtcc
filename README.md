@@ -13,11 +13,29 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Davi-PF_frontendtcc&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=Davi-PF_frontendtcc)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Davi-PF_frontendtcc&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=Davi-PF_frontendtcc)
 
-## ZLO Trackband - TPA
+---
+
+## ZLO Third Party Access (TPA)
 
 O **ZLO Trackband TPA** é um frontend dedicado a interação do Terceiro com a pulseira do Dependente, desenvolvido para que haja uma interação fluída e concisa com as informações do dependente, garantindo que situações emergenciais sejam resolvidas de maneira eficaz.
 
 Essa parte funciona dependendo inicialmente de uma URL criptografada na pulseira que contém o chip NFC, a partir do acesso da URL é iniciado o fluxo do **ZLO Trackband TPA**.
+
+---
+
+## Objetivo do ZLO Third Party Access (TPA)
+
+O **ZLO Third Party Access (TPA)** tem como objetivo principal gerenciar o acesso seguro e controlado às informações sensíveis de dependentes por terceiros autorizados, como cuidadores ou responsáveis eventuais. 
+
+A plataforma garante:
+
+- **Segurança e Conformidade**: Utiliza autenticação robusta, controle de acesso baseado em permissões e criptografia avançada para proteger dados sensíveis, alinhando-se às regulamentações como a **HIPAA**.
+- **Transparência**: Registra e notifica todas as interações realizadas por terceiros, proporcionando confiança e rastreabilidade aos responsáveis.
+- **Eficiência no Gerenciamento de Acessos**: Oferece um fluxo simples e intuitivo para terceiros acessarem apenas as informações necessárias, sem comprometer a privacidade ou a segurança dos dados.
+
+Com o ZLO TPA, buscamos combinar segurança, simplicidade e confiabilidade, promovendo uma gestão eficiente e segura de informações sensíveis.
+
+---
 
 ## Aspectos Técnicos
 
